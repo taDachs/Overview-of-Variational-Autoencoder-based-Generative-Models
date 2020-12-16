@@ -8,15 +8,17 @@
 \usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{textgreek}
+\usepackage{pgf}
+\usepackage{import}
+\usepackage{float}
 
 \mathtoolsset{showonlyrefs}
 
 \markboth{Seminar WS 20/21: Anthropomatik: Von der Theorie zur Anwendung}{Seminar WS 20/21: Anthropomatik: Von der Theorie zur Anwendung}
 
-\title{Overview of Variational Autoencoders as Generative Models}
+\title{Overview of Variational Autoencoder-based Generative Models}
 
 \author{Maximilian~Schik}
-
 
 \begin{document}
 
@@ -27,27 +29,18 @@ This work tries to give the reader a general understanding of how a Variational 
 \end{abstract}
 
 \section{Introduction}
-\subsection{The Need for Generative Models}
-A generative model deals with the modeling of probability distributions from raw data \cite{doersch2016tutorial}. After training, this model can be used for generating new data instances. Having accurate models of random processes is advantageous for many fields. It could for example be used to enhance a dataset with more samples or for detecting outliers/anomalies. It is also useful for the generation of new data. When generating samples those with high probability are wanted to be more likely than those with lower probability \cite{doersch2016tutorial}. At the same time at least a low amount of control about the samples being generated is desired. When generating 3d-models of trees for a video game \cite{doersch2016tutorial} it might be convinient to choose the "style" of tree (confier or deciduous) or the color of the leaves. Learning an efficient representation of such (higher dimensional) features is a goal of generative models. Those features should also be disentangled. When adjusting the hair style of a generated face the gender should not change. While doing that the model should learn on its own which features to learn and which to ignore (for example noise).
+A generative model deals with the modeling of probability distributions from raw data \cite{doersch2016tutorial}. After training, this model can be used for generating new data instances. Having accurate models of random processes is advantageous for many fields. It could, for example, be used to enhance a dataset with more samples or for detecting outliers or anomalies. It is also useful for the generation of new data. When generating samples, those with high probability are desired to be more likely than those with lower probability \cite{doersch2016tutorial}. At the same time, at least a low amount of control about the samples being generated is beneficial. When generating 3d-models of trees for a video game \cite{doersch2016tutorial}, it might be convinient to choose the "style" of tree (conifer or deciduous) or the color of the leaves. Learning an efficient representation of such higher dimensional features is one goal of generative models. Those features should also be disentangled. When adjusting the hair style of a generated face, the gender should not change.
 
-\subsection{Overview of Existing Models}
-This subsection will be an overview of all models discussed in this article. While those models are trained autoassociativ, meaning that it tries to map an input to itself, only the decoder part of the models is used as a generator. This is done by using noise sampled from a probability distribution and using it as an input for the decoder.
+While those models are trained autoassociativ, which means that it tries to map an input to itself, only the decoder part of the models is used as a generator. This is done by using noise sampled from a probability distribution and using it as an input for the decoder. The architecture of an \textit{Autoencoder} (\textit{\textbf{AE}}) was first proposed in \cite{ballard1987modulalearning}. There it is defined as an autoassociative model trained by mean square error. Its intended use was to extract features from input data for use in different machine learning algorithms as a way to deal with the low performing hardware used at that time \cite{ballard1987modulalearning}. Today it is used for many more applications, like noise reduction or anomaly detection. AEs are not really capable of generating meaningful data, but they are the basis for the other models discussed here.
 
-The architecture of an \textit{Autoencoder} (\textit{\textbf{AE}}) was first proposed in \cite{ballard1987modulalearning}. There it's defined as an autoassociative model trained by mean square error. Its intended use was to extract features from input data for use in different machine learning algorithms as a way to deal with the low performing hardware used at that time \cite{ballard1987modulalearning}. Today it's used for many more applications like noise reduction or anomaly detection. AEs are not really capable of generating (meaningful) data, but they are the basis for the other models discussed here.
+An enhanced version of the AE is the \textit{Vartiational Autoencoder} (\textit{\textbf{VAE}}) as proposed in \cite{kingma2014autoencoding}. It has a similar architecture to an AE, but the VAE differs in the loss function and the way its latent variables are learned. The \textit{Beta Variational Autoencoder} (\textit{\textbf{\textbeta -VAE}}) is a further improvement of the VAE proposed by \cite{higgins2017vae}. It introduces a regularization of the latent space and improves the disentanglement of the latent features. !\textit{Beta Total Correlation Variational Autoencoders} (\textit{\textbf{\textbeta -TCVAE}}) \cite{chen2019isolating} are another improvement made by decomposing the ELBO used by VAEs and \textbeta -VAEs and then analyzing it by using concepts taken from Information Theory. It even further improves the disentanglement of \textbeta -VAE and learns an even more efficient representation of inputs in its latent space.
 
-An enhanced version of the AE is the \textit{Vartiational Autoencoder} (\textit{\textbf{VAE}}) as proposed in \cite{kingma2014autoencoding}. It has a similiar architecture to an AE, but differs in the loss function and the way its latent variables are learned.
-
-The \textit{Beta Variational Autoencoder} (\textit{\textbf{\textbeta -VAE}}) is a further improvement of the VAE proposed by \cite{higgins2017vae}. It introduces a regularization of the latent space and improves the disentanglement of the latent features.
-
-\textit{Beta Total Correlation Variational Autoencoders} (\textit{\textbf{\textbeta -TCVAE}}) \cite{chen2019isolating} are another improvement made by decomposing the ELBO used by VAEs and \textbeta -VAEs and analyzing it by using concepts taken from Information Theory. It even further improves the disentanglement of \textbeta -VAE and learns an even more efficient representation of inputs in its latent space.
-
-\subsection{Outline of the Article}
-In the next three sections we will discuss each model and explain the way it learns to represent the given data. We will also look at problems of each model and how other models improve on those problems. After that we will compare the models with each other. The article will end with a conclusion about the featured models.
+In the next three sections each model will be discussed and the way it learns to represent the given data will be explained. It will also be discussed how each model improves over the previous. After that we will compare the models with each other. The article will end with a conclusion about the featured models.
 
 \section{Autoencoder}
-AEs are the simplest of the discussed models. They consist of two parts: the encoder and the decoder. They will be treated as mathematical functions with $f : X \mapsto Z$ as the encoder and $g : Z \mapsto X$ as the decoder. We will call $X$ the data space and $Z$ the latent space. $f$ and $g$ will be learned from data. When implementing an AE we use neural networks as function approximaters for $f$ and $g$.
+\subsection{Method}
+AEs are the simplest of the discussed models. They consist of two parts: the encoder and the decoder. They will be treated as mathematical functions with $f : X \mapsto Z$ as the encoder and $g : Z \mapsto X$ as the decoder. $X$ will be called the data space and $Z$ the latent space. $f$ and $g$ will be learned from data. When implementing an AE, neural networks are used as function approximaters for $f$ and $g$.
 
-\subsection{How an Autoencoder Works}
 The objective of AEs is the minimization of the loss function:
 
 \begin{equation}
@@ -55,30 +48,31 @@ The objective of AEs is the minimization of the loss function:
 	\label{mse}
 \end{equation}
 
-where $\theta_1$ and $\theta_2$ are the parameters of $f$ and $g$, $n$ is the number of datapoints and $x_i$ is the $i$th datapoint. This loss function is also called \textit{mean square error} (\textit{\textbf{mse}}). During training $f$ will learn an encoding of $x \in X$ in the latent space $f(x) \in Z$. The decoder will learn to decode a latent vector $z \in Z$ to a vector in the data space $g(z) \in X$. So a perfect AE would map an input to itself, meaning $x = g(f(x))$. The mse calculates the difference between the reconstruction $g(f(x))$ and the actual input $x$.
+where $\theta_1$ and $\theta_2$ are the parameters of $f$ and $g$, $n$ is the number of datapoints and $x_i$ is the $i$th datapoint. This loss function is also called \textit{mean square error} (\textit{\textbf{MSE}}). During training, $f$ will learn an encoding of $x \in X$ in the latent space $f(x) \in Z$. The decoder will learn to decode a latent vector $z \in Z$ to a vector in the data space $g(z) \in X$. So, a perfect AE would map an input to itself, meaning $x = g(f(x))$. The MSE calculates the difference between the reconstruction $g(f(x))$ and the actual input $x$.
 
-To prevent either $f$ or $g$ from just learning the identity function $id(x) := x$ we introduce an artifical information bottleneck by making $Z$ lower dimensional than $X$. Therefore $f$ must learn a representation (encoding) of $x$ in its latent space. This is also called representation learning \cite{DBLP:journals/corr/abs-1206-5538}. 
+To prevent either $f$ or $g$ from just learning the identity function $id(x) = x$, an artificial information bottleneck is introduced by making $Z$ lower dimensional than $X$. Therefore, $f$ must learn a representation (encoding) of $x$ in its latent space. This is also called representation learning \cite{DBLP:journals/corr/abs-1206-5538}. 
 
 \subsection{Latent Space}
-For an efficient encoding the latent space has to have specific qualities: \textit{a)} latent vectors close to each other in $Z$ should produce samples close to each other in $X$ (\textbf{continuity}) and \textit{b)} every vector $z \in Z$ should produce meaningful data (\textbf{completness}). Using MNIST digits as an example, two fours that look similiar to each other should produce $z_1, z_2 \in Z$ that are close to each other. At the same time a random sample $z \in Z$ should produce a meaningful digit.
+For an efficient encoding, the latent space must have specific qualities: \textit{a)} latent vectors close to each other in $Z$ should produce samples close to each other in $X$ (\textbf{continuity}) and \textit{b)} every vector $z \in Z$ should produce meaningful data (\textbf{completeness}). Using MNIST digits as an example, two fours that look similar to each other should produce $z_1, z_2 \in Z$ that are close to each other. At the same time, a random sample $z \in Z$ should produce a meaningful digit.
 
-We take $Z := \mathbb{R}^{2}$ as an example. When encoding a digit $x \in X$ with $f(x) = z$ we would like the features of $x$ be represented by $z$. For example the value of the digit ($n \in \{0,1,...,9\}$) could be one encoded feature and the angle of the number another encoded feature. For an efficient encoding each feature would be encoded in an own dimension, so they could be changed independently of each other.
+May $Z = \mathbb{R}^{2}$ be taken as an example. When encoding a digit $x \in X$ with $f(x) = z$, it is desired that the features of $x$ be represented by $z$. For example, the value of the digit ($n \in \{0,1,...,9\}$) could be one encoded feature, and the angle of the number another encoded feature. For an efficient encoding, each feature would be encoded in an own dimension, so they could be changed independently of each other.
 
 \subsection{Disadvantages of Autoencoders}
-As mentioned before AEs are not used for generative purposes. The lack of structure in their latent space is the reason for that. The training of an AE doesn't necessarily produce a continous and complete latent space. This leads to close inputs not being close in latent space and sampled inputs not resulting in any meaningful outputs.
+AEs are not used for generative purposes. The lack of structure in their latent space is the reason for that. The training of an AE doesn not necessarily produce a continuous and complete latent space. This leads to close inputs not being close in latent space, and sampled inputs not resulting in any meaningful outputs.
 
 \section{Variational Autoencoder}
-An enhancement that builds up upon the traditional AE is the Variational Autoencoder. It is a directed probabilistic graphical model \cite{kingma2014autoencoding}. It improves upon normal AEs by regulating the latent space and by that motivates the model to learn a more efficient representation of inputs in the latent space.
-\subsection{How does a Variational Autoencoder Learn to Encode the Input?}
-The assumption a VAE makes is that the data points $x \in X$ are produced by a random process where first a $z$ is sampled from a $p(z)$ and then a $x$ is sampeld from $p(x|z)$. Now, when defining the encoder from a probabilistic point of view, we want it to learn the distribution $p(z|x)$. Similarly the decoder should learn the distribution $p(x|z)$. Sampling $z \sim p(z|x)$ would be equivalent to encoding a $x$ to $z$. The same applies for the decoder and $p(x|z)$.
+An enhancement that builds up upon the traditional AE is the Variational Autoencoder. It is a directed probabilistic graphical model \cite{kingma2014autoencoding}. It improves upon normal AEs by regulating the latent space and consequently motivates the model to learn a more efficient representation of inputs in the latent space.
+
+\subsection{Method}
+The assumption a VAE makes is that the data points $x \in X$ are produced by a random process where first, a $z$ is sampled from a $p(z)$, and then a $x$ is sampled from $p(x|z)$. Now, when defining the encoder from a probabilistic point of view, we want it to learn the distribution $p(z|x)$. Similarly, the decoder should learn the distribution $p(x|z)$. Sampling $z \sim p(z|x)$ would be equivalent to encoding an $x$ to $z$. The same applies for the decoder and $p(x|z)$.
 
 May $q(z|x)$ be an approximation of $p(z|x)$. The 
-\textit{Kullback-Leibler divergence} $\mathcal{D}(q \ || \ p) \geq 0$ is a metric for comparing two probability distributions. $\mathcal{D}(q \ || \ p) = 0$ would be equivalent to $q = p$. To learn an accurate approximation $p(z|x)$ the KL-divergence
+\textit{Kullback-Leibler divergence} $\mathcal{D}(q \ \| \ p) \geq 0$ is a metric for comparing two probability distributions. $\mathcal{D}(q \ || \ p) = 0$ would be equivalent to $q = p$. To learn an accurate approximation $p(z|x)$, the KL-divergence
 \begin{equation}
-	\mathcal{D}\left(q(z|x) \ || \ p(z|x) \right) = \mathbb{E}_{z \sim q}\left[ \log q(z|x) - \log p(z|x) \right]
+	\mathcal{D}\left(q(z|x) \ \| \ p(z|x) \right) = \mathbb{E}_{z \sim q}\left[ \log q(z|x) - \log p(z|x) \right]
 	\label{EBOL1}
 \end{equation}
-has to be minimized. Minimizing \eqref{EBOL1} would result in a better approximation $q(z|x)$ of $p(z|x)$ and therefore a better encoding of $x$ in $Z$. Rearranging with Bayes rule results in
+has to be minimized. Minimizing \eqref{EBOL1} would result in a better approximation $q(z|x)$ of $p(z|x)$, and therefore, a better encoding of $x$ in $Z$. Rearranging with Bayes rule results in
 \begin{equation}
 	= \mathbb{E}_{z \sim q} \left[ \log q(z|x) - \log p(x,z) \right] + \log p(x)
 	\label{EBOL2}
@@ -92,11 +86,11 @@ where the first term is the \textit{Evidence Lower Bound} (\textit{\textbf{ELBO}
 
 with $p(x,z) = p(x|z)p(z)$. The ELBO is a lower bound for the log probability $\log p(x) \geq ELBO$ \cite{kingma_2019}. Plugging this into \eqref{EBOL2} allows to rewrite the equation as
 \begin{equation}
-	\log p(x) = ELBO - \mathcal{D}\left(q(z|x) \ || \ p(z|x) \right)
+	\log p(x) = ELBO - \mathcal{D}\left(q(z|x) \ \| \ p(z|x) \right)
 	\label{ELBO4}
 \end{equation}
 
-showing that minimizing $\mathcal{D}\left(q(z|x) \ || \ p(z|x) \right)$ is equivalent to maximizing the ELBO, following from $\log p(x) \geq ELBO$ and $\mathcal{D}(q \ || \ p) \geq 0$.
+showing that minimizing $\mathcal{D}\left(q(z|x) \ \| \ p(z|x) \right)$ is equivalent to maximizing the ELBO, following from $\log p(x) \geq ELBO$ and $\mathcal{D}(q \ \| \ p) \geq 0$.
 
 Using this knowledge \eqref{ELBO3} can be rearranged:
 \begin{equation}
@@ -104,56 +98,115 @@ Using this knowledge \eqref{ELBO3} can be rearranged:
 	\label{ELBO5}
 \end{equation}
 \begin{equation}
-	= \mathbb{E}_{z \sim q}\left[ \log p(x|z) \right] - \mathcal{D}(q(z|x) \ || \ p(z))\,.
+	= \mathbb{E}_{z \sim q}\left[ \log p(x|z) \right] - \mathcal{D}(q(z|x) \ \| \ p(z))\,.
 	\label{ELBO6}
 \end{equation}
 
-The first term in \eqref{ELBO6} performs the same role as mse for the traditional AE. It tries to maximize the probability of a latent vector $z \in Z$ sampled from $q(z|x)$ to be decoded into a $\tilde{x}$ being similiar to $x$. As $p(x|z)$ will be modeled by the decoder $g : Z \mapsto X$ the negative mse can be used instead:
+The first term in \eqref{ELBO6} performs the same role as MSE for the traditional AE. It tries to maximize the probability of a latent vector $z \in Z$ sampled from $q(z|x)$ to be decoded into a $\tilde{x}$ being similar to $x$. As $p(x|z)$ will be modeled by the decoder $g : Z \mapsto X$, the negative MSE can be used instead:
 \begin{equation}
-	ELBO = \mathbb{E}_{z \sim q}\left[ -||x - g(z)||^2 \right] - \mathcal{D}(q(z|x) \ || \ p(z))\,.
+	ELBO = \mathbb{E}_{z \sim q}\left[ -||x - g(z)||^2 \right] - \mathcal{D}(q(z|x) \ \| \ p(z))\,.
 	\label{ELBO7}
 \end{equation}
 
-As the real distribution of $p(z)$ is not known it will be approximated by a normal distribution $p(z) \sim \mathcal{N}(0,1)$. $q(z|x)$ will be modeled by $\mathcal{N}(\mu(x), \Sigma(x))$, where $\mu(x)$ and $\Sigma(x)$ are two functions mapping an input $x \in X$ to a mean and a covariance in $Z$. These functions will be implemented as function approximators in the shape of neural networks and will be learned from data.
+As the real distribution of $p(z)$ is not known, it will be approximated by a normal distribution $p(z) \sim \mathcal{N}(0,1)$. $q(z|x)$ will be modeled by $\mathcal{N}(\mu(x), \Sigma(x))$, where $\mu(x)$ and $\Sigma(x)$ are two functions mapping an input $x \in X$ to a mean and a covariance in $Z$. These functions will be implemented as function approximators in the shape of neural networks and will be learned from data.
 
 Plugging in the approximations gives the objective that the model has to maximize:
 \begin{equation}
-	\mathbb{E}_{z \sim q}\left[ -||x - g(z)||^2 \right] - \mathcal{D}(\mathcal{N}(\mu(x), \Sigma(x)) \ || \ \mathcal{N}(0, 1))\,.
+	\mathbb{E}_{z \sim q}\left[ -||x - g(z)||^2 \right] - \mathcal{D}(\mathcal{N}(\mu(x), \Sigma(x)) \ \| \ \mathcal{N}(0, 1))\,.
 \end{equation}
 
-Because $z$ is still a random variable that gets sampled from a distribution and sampling is not continous, gradient descent is not applicable to this objective. This can be taken care of by moving the sampling to the input using the \textit{reparameterization trick}: A random variable $\epsilon$ will be sampled from a normal distribution $\mathcal{N}(0,1)$ and transformed by $h(x, \epsilon) = \mu(x) + \sqrt{\Sigma(x)} \cdot \epsilon$. 
+Because $z$ is still a random variable that gets sampled from a distribution and sampling is not continuous, gradient descent is not applicable to this objective. This can be taken care of by moving the sampling to the input using the \textit{reparameterization trick}: A random variable $\epsilon$ will be sampled from a normal distribution $\mathcal{N}(0,1)$ and transformed by $h(x, \epsilon) = \mu(x) + \sqrt{\Sigma(x)} \cdot \epsilon$. 
 
 Following this the objective can be rewritten as a loss function that the model has to minimize:
 \begin{gather}
 	\mathcal{L}(\theta_1, \theta_2, \theta_3) = \\ 
-	||x - g_{\theta_3}(h(x, \epsilon))||^2 + \mathcal{D}(\mathcal{N}(\mu_{\theta_1}(x), \Sigma_{\theta_2}(x)) \ || \ \mathcal{N}(0, 1))
+	||x - g_{\theta_3}(h(x, \epsilon))||^2 + \mathcal{D}(\mathcal{N}(\mu_{\theta_1}(x), \Sigma_{\theta_2}(x)) \ \| \ \mathcal{N}(0, 1))
 	\label{vae_loss}
 \end{gather}
-with $\epsilon \sim \mathcal{N}(0,1)$ and $x \in X$. $\theta_1, \theta_2, \theta_3$ are the parameters or weights of the functions $\mu, \Sigma, g$. The Kullback-Leibler divergence of two normal distributions is trivial to compute.
+with $\epsilon \sim \mathcal{N}(0,1)$ and $x \in X$. $\theta_1, \theta_2$ and $\theta_3$ are the parameters or weights of the functions $\mu, \Sigma$ and $g$. The Kullback-Leibler divergence of two normal distributions is trivial to compute.
 
-\subsection{How does a Variational Autoencoder improve upon traditional AEs}
-The VAE improves upon the traditional AE primarly in two points:
-By encoding the input not in a single vector but in a probability distribution area of the latent space gets reserved for latent vectors that produce similiar $x$ when decoded by the decoder. This adresses the problem of the continous latent space. At the same time, by having a random aspect in the sampling of $z$ the decoder learns to deal with the "blurriness" of the latent vector. This helps with the completness of the latent space, resulting in random samples $z \in Z$ producing more meaningful data. This makes the VAE capable of being used as a generator for meaningful data. This is done by detatching the decoder from the encoder and applying noise sampled from a distribution. When doing this the encoder is not needed anymore and can be discarded.
+\subsection{How does a Variational Autoencoder improve upon traditional AEs?}
+The VAE improves upon the traditional AE primarily in two points:
+By encoding the input not in a single vector but into a probability distribution, an area of the latent space gets reserved for latent vectors that produce similar $x$ when decoded by the decoder. This addresses the problem of the continuous latent space. At the same time, by having a random aspect in the sampling of $z$, the decoder learns to deal with the "blurriness" of the latent vector. This helps with the completeness of the latent space, resulting in random samples $z \in Z$ producing more meaningful data. This makes the VAE capable of being used as a generator for meaningful data. This is done by detaching the decoder from the encoder and applying noise sampled from a distribution. When doing this, the encoder is not needed anymore and can be discarded.
 
 \subsection{Problems with Variational Autoencoders}
-While VAEs allow for the generation of meaningful data they still lacking structure in the latent space. Features tend to be entangled with each other, showing that the model doesn't learn the most efficient representation in the latent space. The optimization of the Kullback-Leibler divergence also comes with its drawbacks in the shape of lower reconstruction accuracy. 
+While VAEs allow for the generation of meaningful data, they still lacking structure in the latent space. Features tend to be entangled with each other, showing that the model does not learn the most efficient representation in the latent space. The optimization of the Kullback-Leibler divergence also comes with its drawbacks in the shape of lower reconstruction accuracy. 
 
 \section{Beta-Variational Autoencoder}
-The \textbeta -VAE improves the disetanglement of VAEs by adding a single scalar to the objective:
+The \textbeta -VAE improves the disentanglement of VAEs by adding a single scalar to the objective:
 \begin{equation}
-	\mathbb{E}_{z \sim q}\left[ \log p(x|z) \right] - \beta \mathcal{D}(q(z|x) \ || \ p(z)).
+	\mathbb{E}_{z \sim q}\left[ \log p(x|z) \right] - \beta \mathcal{D}(q(z|x) \ \| \ p(z)).
 \end{equation}
-If $\beta = 1$ the model is equivalent to a VAE. Higher values of $\beta$ enforce stricter regularizations on the latent space and improve the structure in the latent space. 
-\subsection{How does beta-VAE learn to disentangle the features in the latent space}
-For $\beta > 1$ the Kullback-Leibler Divergence gets more weight in the overall objective, resulting in higher pressure on the model to minimize $\mathcal{D}(q(z|x) \ || \ p(z))$. This means that the model gets pressured to learn $q(z|x)$ close to $p(z)$. Because we approximate $q(z|x)$ with $\mathcal{N}(\mu(x), \Sigma(x))$ and $p(z)$ with $\mathcal{N}(0, 1)$, this means that $\mu(x)$ will get closer to $0$ and $\Sigma(x)$ will get closer to $1$. Therefore the encodings in the latent space will get squeezed together. A consequence of that is the overlapping of the distributions $\mathcal{N}(\mu(x), \Sigma(x))$. This would result in a higher reconstruction error $\mathbb{E}_{z \sim q}\left[ \log p(x|z) \right]$, as the sampling of $z ~ q(z|x_1)$, due to its random nature, could result in a $z$ that has a much higher probability under a different $x_2$, therefore the decoder would map it with higher probability to $x_2$ rather than to $x_1$, even though it was sampled from $q(z|x_1)$ \cite{burgess2018understanding}. To reduce the reconstruction error again the model has to encode $x_1, x_2 \in X$, that are close to each other in data space, close to each other in latent space, therefore reducing the amount of reconstruction error produced by the overlapping. Therefore inputs that share features/are similiar to each other will be encoded close to each other. Inputs that differ only in one feature should be very close to each other, while inputs that share almost no features will be further apart, therefore seperating and disentangling the features in the latent space \cite{burgess2018understanding}. 
+If $\beta = 1$, the model is equivalent to a VAE. Higher values of $\beta$ enforce stricter regularizations on the latent space and improve the structure in the latent space. 
+\subsection{How does beta-VAE learn to disentangle the features in the latent space?}
+For $\beta > 1$, the Kullback-Leibler Divergence is weighted more in the overall objective, resulting in higher pressure on the model to minimize $\mathcal{D}(q(z|x) \ \| \ p(z))$. This means that the model gets pressured to learn $q(z|x)$ close to $p(z)$. Because we approximate $q(z|x)$ with $\mathcal{N}(\mu(x), \Sigma(x))$ and $p(z)$ with $\mathcal{N}(0, 1)$, this means that $\mu(x)$ will get closer to $0$, and $\Sigma(x)$ will get closer to $1$. Therefore, the encodings in the latent space will get squeezed together. A consequence of that is the overlapping of the distributions $\mathcal{N}(\mu(x), \Sigma(x))$. This would result in a higher reconstruction error $\mathbb{E}_{z \sim q}\left[ \log p(x|z) \right]$, as the sampling of $z ~ q(z|x_1)$, due to its random nature, could result in a $z$ that has a much higher probability under a different $x_2$. Therefore the decoder would map it with higher probability to $x_2$ rather than to $x_1$, even though it was sampled from $q(z|x_1)$ \cite{burgess2018understanding}. To reduce the reconstruction error again, the model has to encode $x_1, x_2 \in X$, that are close to each other in data space, close to each other in latent space, therefore reducing the amount of reconstruction error produced by the overlapping. Therefore, inputs that share features or are similiar to each other will be encoded close to each other. Inputs that differ only in one feature should be very close to each other, while inputs that share almost no features will be further apart, therefore separating and disentangling the features in the latent space \cite{burgess2018understanding}. 
+
 
 \subsection{Improvements of Beta-Variational Autoencoders over Variational Autoencoders}
 Experiments show \textbeta -VAEs performing better at disentangling latent features than normal VAEs. This comes from the more efficient use of the latent space motivated by the higher penality for the Kullback-Leibler Divergence introduced by \textbeta, be it at a lower reconstruction accuracy.
 
-\section{Beta-Total Correlation Variational Autoencoder}
 
+\section{Beta-Total Correlation Variational Autoencoder}
+A further refinement of the VAE framework has been introduced by \cite{chen2019isolating} in the shape of the Beta Total Correlation Autoencoder. It improves the disentanglement even further by decomposing the ELBO and scaling the resulting terms.
+
+
+
+\subsection{Decomposition and Analysis of the ELBO}
+The Kullback-Leibler Divergence in the ELBO as seen in \eqref{ELBO6} can expanded to
+\begin{align*}
+\mathcal{D}(q(z|x) \ \| \ p(z)) =
+	\mathbb{E}_{z \sim q} \left[ \log q(z|x) - \log p(z) \right. \\
+	 + \log q(z) - \log q(z) + \log \prod_j q(z_j) - \log \prod_j q(z_j) ]\,,
+\end{align*}
+
+which can be rearranged to 
+\begin{align*}
+	= \mathcal{D}(q(z, x) \ \| \ q(z)p(x)) \\ + \mathcal{D}(q(z) \ \| \  \prod_{j} q(z_j)) \\ + \sum_j \mathcal{D}(q(z_j) \ \| \ p(z_j))
+\end{align*}
+\begin{align*}
+	= I[z;x] + \mathcal{D}(q(z) \ \| \  \prod_{j} q(z_j)) + \sum_j \mathcal{D}(q(z_j) \ \| \ p(z_j))
+\end{align*}
+
+where the first term will be called the \textit{index-code mutual information} (\textbf{MI}), the second term is known as the \textit{total correlation} (\textbf{TC}), and the third term will be called the \textit{dimension wise Kullback-Leibler Divergence} \cite{chen2019isolating}.
+
+The mutual information $I\left[ z; x \right]$ is defined as
+\begin{equation}
+	I[z;x] = H(z) - H(z|x) = \mathcal{D}(q(z, x) \ \| \ q(z)p(x))\,,
+\end{equation}
+where $H(x)$ is the \textit{entropy} of a random variable. The entropy is a measurement of uncertainty about the random variable. So, the mutual information $I[z;x]$ is the amount the uncertainty about $z$ gets reduced by when given an observation about $x$. If the mutual information is zero, the variables are completely independent of each other.
+
+The total correlation is a generalization of the mutual information for more than one variable. It measures the dependency among a set of random variables, in this case $z_1 \ldots z_n$. If the total correlation would be zero, it would mean that all $z_j$ are independent of each other and are therefore completely disentangled. As shown in \cite{chen2019isolating}, this term is the main reason why \textbeta -VAE is succesful at disentangling the latent features.
+
+The dimension-wise Kullback-Leibler Divergence mainly acts as a restriction on the individual latent dimensions to keep them from deviating too far from the approximated normal distribution for $p(z) \sim \mathcal{N}(0,1)$.
+
+An improved objective can be obtained by adding weights to the components:
+\begin{align*}
+	ELBO = \mathbb{E}_{z \sim q}\left[ \log p(x|z) \right] - \alpha I[z;x] \\ - \beta \mathcal{D}(q(z) \ \| \  \prod_{j} q(z_j)) \\ - \gamma \sum_j \mathcal{D}(q(z_j) \ \| \ p(z_j))\,.
+\end{align*}
+
+Experiments have shown that $\alpha = \gamma = 1$ and $\beta > 1$ gave the best results \cite{chen2019isolating}.
+
+\begin{figure*}[h]
+	\centering
+    \import{plots/disentanglement_comparison/}{disentanglement_comparison.pgf}
+    \caption{Comparison between the discussed models.}
+    \label{fig:disentanglement}
+\end{figure*}
 
 \section{Comparison}
+
+\showthe\columnwidth
+
+blablabla images blablabla disentanglement blablabla \textbeta -TCVAE is the best because of regularization blablabla i have to generate the plots blablabla
+
+\begin{figure}[H]
+	\centering
+    \import{plots/generative_comparison/}{generative_comparison.pgf}
+    \caption{Comparison between the discussed models.}
+    \label{fig:generative}
+\end{figure}
+
+
 \section{Conclusion}
 
 \bibliographystyle{plain}

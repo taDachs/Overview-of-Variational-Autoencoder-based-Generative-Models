@@ -7,15 +7,20 @@ import numpy as np
 
 from tensorflow import keras
 import tensorflow_probability as tfp
-tfpl = tfp.layers
+
+from util import substitute
+
 tfpl = tfp.layers
 tfd = tfp.distributions
 
-COLOUMN_WIDTH = 252.0 #pt
-INCHES_PER_PT = 1.0/72.27
-GOLDEN_MEAN = (np.sqrt(5)-1.0)/2.0
+COLUMN_WIDTH = 252.0  # pt
+INCHES_PER_PT = 1.0 / 72.27
+GOLDEN_MEAN = (np.sqrt(5) - 1.0) / 2.0
 
-clip = lambda x: np.clip(x, 0, 1)
+
+def clip(x):
+    return np.clip(x, 0, 1)
+
 
 class Model:
     def __init__(self, encoder, decoder, latent_dim, output_shape=(64, 64, 3)):
@@ -59,16 +64,9 @@ class ProbabilisticAE(Model):
         return clip(px_z.mean()[0])
 
 
-def load_encoder_decoder(path):
-    encoder = keras.models.load_model(os.path.join(path, 'encoder'))
-    decoder = keras.models.load_model(os.path.join(path, 'decoder'))
-
-    return encoder, decoder
-
-
-def plot_comparison_disentanglement(images: list, models: list, model_names: list, feature_dict: dict, min_z=-6,
-                                    max_z=6, num_steps=6, range_dict: dict = {}):
-    fig_width = COLOUMN_WIDTH * 2 * INCHES_PER_PT
+def plot_comparison_disentanglement(imgs: list, models: list, model_names: list, feature_dict: dict, min_z=-6,
+                                    max_z=6, num_steps=6, range_dict: dict = {}, substitution_dict: dict = {}):
+    fig_width = COLUMN_WIDTH * 2 * INCHES_PER_PT
     fig_height = fig_width * GOLDEN_MEAN
     fig_size = [fig_width, fig_height]
 
@@ -87,11 +85,13 @@ def plot_comparison_disentanglement(images: list, models: list, model_names: lis
         for j, (model, model_name) in enumerate(zip(models, model_names)):
             min_z_temp, max_z_temp = range_dict[model_name] if model_name in range_dict else (min_z, max_z)
 
-            plot_image_matrix(images, model, feature_dict[feature_name][j], axs[i, j], min_z=min_z_temp,
+            plot_image_matrix(imgs, model, feature_dict[feature_name][j], axs[i, j], min_z=min_z_temp,
                               max_z=max_z_temp, num_steps=num_steps)
 
     for ax, col in zip(axs[-1, :], model_names):
         min_z_temp, max_z_temp = range_dict[col] if col in range_dict else (min_z, max_z)
+        if col in substitution_dict:
+            col = substitute(col, substitution_dict)
         ax.set_xlabel(f'{col} ({min_z_temp},{max_z_temp})')
 
     for ax, row in zip(axs[:, 0], feature_dict.keys()):
@@ -102,12 +102,11 @@ def plot_comparison_disentanglement(images: list, models: list, model_names: lis
     return fig, axs
 
 
-def plot_image_matrix(images, model, feature_dimension, ax, min_z=-5, max_z=5, num_steps=6):
-    num_rows = len(images)
-    img_width, img_height, channels = images[0].shape
-    canvas = np.zeros((len(images) * img_height, num_steps * img_width, channels))
+def plot_image_matrix(imgs, model, feature_dimension, ax, min_z=-5, max_z=5, num_steps=6):
+    img_width, img_height, channels = imgs[0].shape
+    canvas = np.zeros((len(imgs) * img_height, num_steps * img_width, channels))
     steps = np.linspace(min_z, max_z, num_steps)
-    for j, img in enumerate(images):
+    for j, img in enumerate(imgs):
         z = np.array(model.get_latent(img))
         for i, step in enumerate(steps):
             z[feature_dimension] = step
@@ -120,8 +119,9 @@ def plot_image_matrix(images, model, feature_dimension, ax, min_z=-5, max_z=5, n
     ax.tick_params(axis='both', which='both', length=0)
 
 
-def plot_comparison_generative(models: list, model_names: list, size=(5, 5)):
-    fig_width = COLOUMN_WIDTH * INCHES_PER_PT
+def plot_comparison_generative(models: list, model_names: list, size=(5, 5),
+                               substitution_dict: dict = {}):
+    fig_width = COLUMN_WIDTH * INCHES_PER_PT
     fig_height = fig_width * GOLDEN_MEAN
     fig_size = [fig_width, fig_height]
 
@@ -137,9 +137,11 @@ def plot_comparison_generative(models: list, model_names: list, size=(5, 5)):
     fig, axs = plt.subplots(1, len(models), figsize=fig_size)
 
     for model, ax in zip(models, axs):
-        plot_generative_matrix(model, ax)
+        plot_generative_matrix(model, ax, size)
 
     for ax, col in zip(axs, model_names):
+        if col in substitution_dict:
+            col = substitute(col, substitution_dict)
         ax.set_xlabel(col)
 
     plt.tight_layout()

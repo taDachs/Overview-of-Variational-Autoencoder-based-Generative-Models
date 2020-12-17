@@ -12,7 +12,7 @@ tfd = tfp.distributions
 img_width, img_height = (64, 64)
 input_shape = (img_width, img_height, 3)
 
-def get_encoder(latent_dim, probabilistic=False):
+def get_encoder(latent_dims, probabilistic=False):
     encoder_inputs = keras.Input(shape=input_shape)
     x = layers.Conv2D(64, 4, strides=2, padding="same", use_bias=False)(encoder_inputs)
     x = layers.BatchNormalization()(x)
@@ -29,23 +29,23 @@ def get_encoder(latent_dim, probabilistic=False):
     x = layers.Conv2D(512, 4, strides=2, padding="same", use_bias=False)(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
-    x = layers.Conv2D(latent_dim, 4, strides=2, padding="same", use_bias=False)(x)
+    x = layers.Conv2D(latent_dims, 4, strides=2, padding="same", use_bias=False)(x)
     x = layers.Flatten()(x)
-    mu = layers.Dense(tfpl.IndependentNormal.params_size(latent_dim) / 2)(x)
+    mu = layers.Dense(tfpl.IndependentNormal.params_size(latent_dims) / 2)(x)
     if probabilistic:
-        sigma = layers.Dense(tfpl.IndependentNormal.params_size(latent_dim) / 2)(x)
+        sigma = layers.Dense(tfpl.IndependentNormal.params_size(latent_dims) / 2)(x)
         sigma = tf.exp(sigma)
         x = tf.concat((mu, sigma), axis=1)
-        x = tfpl.IndependentNormal(latent_dim, validate_args=True)(x)
+        x = tfpl.IndependentNormal(latent_dims, validate_args=True)(x)
     else:
         x = mu
     encoder = keras.Model(encoder_inputs, x, name='encoder')
     return encoder
 
 
-def get_decoder(latent_dim, probabilistic=False):
-    latent_inputs = keras.Input(shape=(latent_dim,))
-    x = layers.Reshape((1, 1, latent_dim))(latent_inputs)
+def get_decoder(latent_dims, probabilistic=False):
+    latent_inputs = keras.Input(shape=(latent_dims,))
+    x = layers.Reshape((1, 1, latent_dims))(latent_inputs)
     x = layers.Conv2DTranspose(512, 1, strides=1, padding="valid", use_bias=False)(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
@@ -69,10 +69,8 @@ def get_decoder(latent_dim, probabilistic=False):
     if probabilistic:
         mu = layers.Flatten()(mu)
         mu = keras.activations.sigmoid(mu)
-        # mu = layers.Dense(tfpl.IndependentNormal.params_size(input_shape) / 2)(mu)
         sigma = tf.fill(tf.shape(mu), 0.01)
         x = tf.concat((mu, sigma), axis=1)
-        # x = tfkl.Dense(tfpl.IndependentNormal.params_size(input_shape))(x)
         x = tfpl.IndependentNormal(input_shape, validate_args=True)(x)
     else:
         x = mu
@@ -81,12 +79,12 @@ def get_decoder(latent_dim, probabilistic=False):
 
 
 class VAE(keras.Model):
-    def __init__(self, beta=1, tc=False, latent_dim=32, **kwargs):
+    def __init__(self, beta=1, tc=False, latent_dims=32, **kwargs):
         super(VAE, self).__init__(**kwargs)
-        self.prior = tfd.Independent(tfd.Normal(loc=tf.zeros(latent_dim), scale=1), reinterpreted_batch_ndims=1)
-        self.latent_dim = latent_dim
-        self.encoder = get_encoder(self.latent_dim, probabilistic=True)
-        self.decoder = get_decoder(self.latent_dim, probabilistic=True)
+        self.prior = tfd.Independent(tfd.Normal(loc=tf.zeros(latent_dims), scale=1), reinterpreted_batch_ndims=1)
+        self.latent_dims = latent_dims
+        self.encoder = get_encoder(self.latent_dims, probabilistic=True)
+        self.decoder = get_decoder(self.latent_dims, probabilistic=True)
         self.beta = beta
         self.tc = tc
 
@@ -103,11 +101,8 @@ class VAE(keras.Model):
             qz_x = self.encoder(data)
             z = qz_x.sample()
             px_z = self.decoder(z)
-            x = px_z.mean()
 
             log_px_z = px_z.log_prob(data)
-            log_qx_z = qz_x.log_prob(z)
-            log_pz = self.prior.log_prob(z)
             kl = qz_x.log_prob(z) - self.prior.log_prob(z)
             tc = self.total_correlation(z, qz_x)
 
@@ -140,16 +135,16 @@ class VAE(keras.Model):
         return log_qz - log_qz_prod
 
     def save(self, epochs_trained, learning_rate):
-        self.encoder.save(f'vae_{self.beta}_{self.latent_dim}_{epochs_trained}_{int(1 / learning_rate)}/encoder')
-        self.decoder.save(f'vae_{self.beta}_{self.latent_dim}_{epochs_trained}_{int(1 / learning_rate)}/decoder')
+        self.encoder.save(f'vae_{self.beta}_{self.latent_dims}_{epochs_trained}_{int(1 / learning_rate)}/encoder')
+        self.decoder.save(f'vae_{self.beta}_{self.latent_dims}_{epochs_trained}_{int(1 / learning_rate)}/decoder')
 
 
 class AE(keras.Model):
-    def __init__(self, latent_dim, **kwargs):
+    def __init__(self, latent_dims, **kwargs):
         super(AE, self).__init__(**kwargs)
-        self.latent_dim = latent_dim
-        self.encoder = get_encoder(self.latent_dim)
-        self.decoder = get_decoder(self.latent_dim)
+        self.latent_dims = latent_dims
+        self.encoder = get_encoder(self.latent_dims)
+        self.decoder = get_decoder(self.latent_dims)
 
     def call(self, input):
         return None
@@ -170,5 +165,5 @@ class AE(keras.Model):
         }
 
     def save(self, epochs_trained, learning_rate):
-        self.encoder.save(f'ae_{self.latent_dim}_{epochs_trained}_{int(1 / learning_rate)}/encoder')
-        self.decoder.save(f'ae_{self.latent_dim}_{epochs_trained}_{int(1 / learning_rate)}/decoder')
+        self.encoder.save(f'ae_{self.latent_dims}_{epochs_trained}_{int(1 / learning_rate)}/encoder')
+        self.decoder.save(f'ae_{self.latent_dims}_{epochs_trained}_{int(1 / learning_rate)}/decoder')

@@ -9,5 +9,6 @@ DATASET_DIR=$(readlink -f $1)
 DESTINATION_DIR="$2"
 
 mkdir -p "$DESTINATION_DIR"
+DESTINATION_DIR=$(readlink -f $2)
 
 python3 code/prepare_data.py --data "$DATASET_DIR" --dst "$DESTINATION_DIR"

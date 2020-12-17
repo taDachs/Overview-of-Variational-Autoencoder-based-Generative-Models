@@ -136,7 +136,7 @@ class VAE(keras.Model):
 
     def save(self, save_path):
         self.encoder.save(os.path.join(save_path, 'encoder'))
-        self.encoder.save(os.path.join(save_path, 'decoder'))
+        self.decoder.save(os.path.join(save_path, 'decoder'))
 
 
 class AE(keras.Model):
@@ -166,4 +166,4 @@ class AE(keras.Model):
 
     def save(self, save_path):
         self.encoder.save(os.path.join(save_path, 'encoder'))
-        self.encoder.save(os.path.join(save_path, 'decoder'))
+        self.decoder.save(os.path.join(save_path, 'decoder'))

@@ -13,9 +13,9 @@ from util import *
 if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     parser = argparse.ArgumentParser(description='script for preprocessing of the celeba dataset')
-    parser.add_argument('--data', metavar='[DATASET PATH]', type=str, help='path to dataset')
-    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, help='path to plot destination')
-    parser.add_argument('--config', metavar='[CONFIG PATH]', type=str, help='path to config')
+    parser.add_argument('--data', metavar='[DATASET PATH]', type=str, required=True, help='path to dataset')
+    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, required=True, help='path to plot destination')
+    parser.add_argument('--config', metavar='[CONFIG PATH]', type=str, required=True, help='path to config')
     parser.add_argument('--num_images', metavar='N', type=int, default=5,
                         help='path to folder containing models')
 
@@ -53,4 +53,4 @@ if __name__ == '__main__':
     fig, ax = plot_comparison_generative(models=models, model_names=model_names, size=(num_images, num_images),
                                          substitution_dict=substitution_dict)
     fig.savefig(os.path.join(plot_path, 'generative_comparison.pgf'), dpi=200, bbox_inches='tight')
-    fig.savefig(os.path.join(plot_path, 'generative_comparison.pgf'), dpi=200, bbox_inches='tight')
+    fig.savefig(os.path.join(plot_path, 'generative_comparison.pdf'), dpi=200, bbox_inches='tight')

@@ -10,7 +10,7 @@ from model_wrapper import *
 def substitute(s, substitution_dict):
     s = substitution_dict[s]
     if 'BETA' in s:
-        s.replace('BETA', '')
+        s = s.replace('BETA', '')
         s = rf'$\beta${s}'
     return s
 

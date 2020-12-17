@@ -25,8 +25,8 @@ def crop_dataset(source_dir, destination_dir):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='script for preprocessing of the celeba dataset')
-    parser.add_argument('--data', metavar='[DATASET PATH]', type=str, help='path to dataset')
-    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, help='path to destination')
+    parser.add_argument('--data', metavar='[DATASET PATH]', type=str, required=True, help='path to dataset')
+    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, required=True, help='path to destination')
 
     args = parser.parse_args()
 

@@ -1,6 +1,8 @@
 # Overview of Variational Autoencoder-based Generative Models
 This is an article about using variational autoencoders for the generation of new data. It contains the code for training the mentioned models on celeb_a and generating the plots. 
 
+tensorflow, tensorflow-probabilty, matplotlib and PIL are required.
+
 ## train the models yourself
 1. download the celeb_a dataset to ```[PATH TO REPO]/datasets```
 2. run this to crop the dataset to 64x64 and save it under ```datasets/cropped```

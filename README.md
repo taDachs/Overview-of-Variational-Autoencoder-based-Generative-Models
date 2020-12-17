@@ -13,8 +13,12 @@ sh train_models.sh datasets/cropped
 ```
 
 ## generate the plots
-1. modify ```example_config.json``` to fit your trained model
-2. run this to generate the plots and save them under ```plots/```
+1. run this to generate a plot of all latent dimensions being traversed with a random image and save it under ```plots/```
+```shell
+sh explore_model.sh datasets/cropped/img ./plots models/your_model
+```
+2. modify ```example_config.json``` to fit your trained models, you can determine the feature dimensions by looking at the plot generated in the previous step
+3. run this to generate the plots and save them under ```plots/```
 ```shell
 sh generate_plots.sh datasets/cropped/img ./plots ./my_config.json
 ```

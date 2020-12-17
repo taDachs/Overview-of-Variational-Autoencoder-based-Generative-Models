@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-import os
-
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 
-from tensorflow import keras
 import tensorflow_probability as tfp
 
 from util import substitute

@@ -3,9 +3,8 @@ import os
 import json
 
 import tensorflow.keras as keras
-import tensorflow_probabilisty.layers as tfpl
 
-from plots import ProbabilisticAE, DeterministicAE
+from model_wrapper import *
 
 
 def substitute(s, substitution_dict):
@@ -14,17 +13,6 @@ def substitute(s, substitution_dict):
         s.replace('BETA', '')
         s = rf'$\beta${s}'
     return s
-
-
-def wrap_model(encoder, decoder):
-    if type(encoder.layers[-1]) == tfpl.IndependentNormal:
-        ModelType = ProbabilisticAE
-        latent_dims = encoder.layers[-1].output[1].shape[1]
-    else:
-        ModelType = DeterministicAE
-        latent_dims = encoder.layers[-1].output.shape[1]
-
-    return ModelType(encoder, decoder, latent_dims)
 
 
 def load_encoder_decoder(path):

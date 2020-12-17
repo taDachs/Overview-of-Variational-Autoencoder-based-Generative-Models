@@ -7,7 +7,7 @@ fi
 
 DATASET_DIR=$(readlink -f "$1")
 
-python3 code/train_model.py --data "$DATASET_DIR" --model ae --epochs 1 --learning-rate 0.0001 --latent 32 --dst ./models/ae --allow-growth
-python3 code/train_model.py --data "$DATASET_DIR" --model vae --epochs 1 --learning-rate 0.0001 --latent 32 --dst ./models/vae --allow-growth
-python3 code/train_model.py --data "$DATASET_DIR" --model bvae --epochs 1 --learning-rate 0.0001 --latent 32 --dst ./models/bvae --allow-growth
-python3 code/train_model.py --data "$DATASET_DIR" --model btcvae --epochs 1 --learning-rate 0.0001 --latent 32 --dst ./models/btcvae --allow-growth
+python3 code/train_model.py --data "$DATASET_DIR" --model ae --epochs 30 --learning-rate 0.0001 --latent 32 --dst ./models/ae --allow-growth
+python3 code/train_model.py --data "$DATASET_DIR" --model vae --epochs 30 --learning-rate 0.0001 --latent 32 --dst ./models/vae --allow-growth
+python3 code/train_model.py --data "$DATASET_DIR" --model bvae --epochs 30 --learning-rate 0.0001 --latent 32 --dst ./models/bvae --allow-growth
+python3 code/train_model.py --data "$DATASET_DIR" --model btcvae --epochs 30 --learning-rate 0.0001 --latent 32 --dst ./models/btcvae --allow-growth

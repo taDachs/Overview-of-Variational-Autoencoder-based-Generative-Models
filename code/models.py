@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import tensorflow as tf
+import os
 
+import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-
 import tensorflow_probability as tfp
 
 tfpl = tfp.layers
@@ -134,9 +134,9 @@ class VAE(keras.Model):
 
         return log_qz - log_qz_prod
 
-    def save(self, epochs_trained, learning_rate):
-        self.encoder.save(f'vae_{self.beta}_{self.latent_dims}_{epochs_trained}_{int(1 / learning_rate)}/encoder')
-        self.decoder.save(f'vae_{self.beta}_{self.latent_dims}_{epochs_trained}_{int(1 / learning_rate)}/decoder')
+    def save(self, save_path):
+        self.encoder.save(os.path.join(save_path, 'encoder'))
+        self.encoder.save(os.path.join(save_path, 'decoder'))
 
 
 class AE(keras.Model):
@@ -164,6 +164,6 @@ class AE(keras.Model):
             'loss': mse
         }
 
-    def save(self, epochs_trained, learning_rate):
-        self.encoder.save(f'ae_{self.latent_dims}_{epochs_trained}_{int(1 / learning_rate)}/encoder')
-        self.decoder.save(f'ae_{self.latent_dims}_{epochs_trained}_{int(1 / learning_rate)}/decoder')
+    def save(self, save_path):
+        self.encoder.save(os.path.join(save_path, 'encoder'))
+        self.encoder.save(os.path.join(save_path, 'decoder'))

@@ -141,7 +141,7 @@ The \textbeta -VAE improves the disentanglement of VAEs by adding a single scala
 If $\beta = 1$, the model is equivalent to a VAE. Higher values of $\beta$ enforce stricter regularizations on the latent space and improve the structure in the latent space. 
 
 \subsection{Disentangled Feature Learning}
-For $\beta > 1$, the Kullback-Leibler Divergence is weighted more in the overall objective, resulting in higher pressure on the model to minimize $\mathcal{D}(q(z|x) \ \| \ p(z))$. This means that the model gets pressured to learn $q(z|x)$ close to $p(z)$. Because we approximate $q(z|x)$ with $\mathcal{N}(\mu(x), \Sigma(x))$ and $p(z)$ with $\mathcal{N}(0, 1)$, this means that $\mu(x)$ will get closer to $0$, and $\Sigma(x)$ will get closer to $1$. Therefore, the encodings in the latent space will get squeezed together. A consequence of that is the overlapping of the distributions $\mathcal{N}(\mu(x), \Sigma(x))$. This would result in a higher reconstruction error $\mathbb{E}_{z \sim q}\left[ \log p(x|z) \right]$, as the sampling of $z ~ q(z|x_1)$, due to its random nature, could result in a $z$ that has a much higher probability under a different $x_2$. Therefore the decoder would map it with higher probability to $x_2$ rather than to $x_1$, even though it was sampled from $q(z|x_1)$ \cite{burgess2018understanding}. To reduce the reconstruction error again, the model has to encode $x_1, x_2 \in X$, that are close to each other in data space, close to each other in latent space, therefore reducing the amount of reconstruction error produced by the overlapping. Therefore, inputs that share features or are similiar to each other will be encoded close to each other. Inputs that differ only in one feature should be very close to each other, while inputs that share almost no features will be further apart, therefore separating and disentangling the features in the latent space \cite{burgess2018understanding}. 
+For $\beta > 1$, the Kullback-Leibler Divergence is weighted more in the overall objective, resulting in higher pressure on the model to minimize $\mathcal{D}(q(z|x) \ \| \ p(z))$. This means that the model gets pressured to learn $q(z|x)$ close to $p(z)$. Because we approximate $q(z|x)$ with $\mathcal{N}(\mu(x), \Sigma(x))$ and $p(z)$ with $\mathcal{N}(0, 1)$, this means that $\mu(x)$ will get closer to $0$, and $\Sigma(x)$ will get closer to $1$. Therefore, the encodings in the latent space will get squeezed together. A consequence of that is the overlapping of the distributions $\mathcal{N}(\mu(x), \Sigma(x))$. This would result in a higher reconstruction error $\mathbb{E}_{z \sim q}\left[ \log p(x|z) \right]$, as the sampling of $z ~ q(z|x_1)$, due to its random nature, could result in a $z$ that has a much higher probability under a different $x_2$. Therefore the decoder would map it with higher probability to $x_2$ rather than to $x_1$, even though it was sampled from $q(z|x_1)$ \cite{burgess2018understanding}. To reduce the reconstruction error again, the model has to encode $x_1, x_2 \in X$, that are close to each other in data space, close to each other in latent space, therefore reducing the amount of reconstruction error produced by the overlapping. Therefore, inputs that share features or are similiar to each other will be encoded close to each other. Inputs that differ only in one feature should be very close to each other, while inputs that share almost no features will be further apart, therefore separating and disentangling the features in the latent space \cite{burgess2018understanding}.
 
 
 \subsection{Improvements of $\beta$-VAE}
@@ -191,6 +191,9 @@ Experiments have shown that $\alpha = \gamma = 1$ and $\beta > 1$ gave the best 
 	 - (\beta - 1) \cdot \mathcal{D}(q(z) \| \prod_j q(z_j))
 \end{align*}
 
+\subsection{Improvements of $\beta$-TCVAE}
+As the is same with $\beta$-VAE, for $\beta = 1$ $\beta$-TCVAE is equivalent to a normal VAE. The only noteworthy disadvantage therefore is the slightly more complex objective. In most other aspects $\beta$-TCVAE behaves like $\beta$-VAE. Because of that, it share the same disadvantages of lower reconstruction accuracy for higher $\beta$ as $\beta$-VAE. Experiments have shown, as will be seen in \hyperref[sec:experiments]{Section VI}, that $\beta$-TCVAE outperforms the other models at disentangling the latent features. This is the result of a more specialized ELBO, which leads to a better organized latent space. 
+
 \section{Experiments}
 \label{sec:experiments}
 
@@ -200,11 +203,16 @@ For this report one of each model has been trained to visualize the topics discu
 \subsection{Experiment setting}
 The training set used is the celeb\_a dataset \cite{liu2015faceattributes}. It contains over 200,000 different images of faces. To keep the model focused on face attributes the images have been cropped to contain as little background as possible. For the encoder a stack of six convolutional layers with leaky relu and batch normalization layers inbetween is used. The decoder is the reverse, with convolutional transpose instead of convolutional layers. For the probabilisic models (VAE, $\beta$-VAE, $\beta$-TCVAE) the encoder ends in two seperated dense layers that learn $\mu(x)$ and $\Sigma(x)$ as seen in \eqref{ELBO8}. The output of the decoder is used as the mean of a normal distribution, similiar to $\mu(x)$, with a fixed variance. The AE doesn't use any probability distributions and is fully deterministic.
 
-The implementation is written in python using Keras/Tensorflow. For modeling the normal distributions, tensorflow-probability layers are used, as they allow for easy sampling and probing of a paramterized distribution. Internally they use the reparameterization trick for sampling. Because $\Sigma(x)$ learns the variance of a normal distribution, which has to be $\geq 0$, the exponential function $\exp(x) = e^x$ is used.
+The implementation is written in python using Keras/Tensorflow. For modeling the normal distributions, tensorflow-probability layers are used, as they allow for easy sampling and probing of a paramterized distribution. Internally they use the reparameterization trick for sampling. Because $\Sigma(x)$ learns the variance of a normal distribution, which has to be $\geq 0$, the exponential function $\exp(x) = e^x$ is used on the output of $\Sigma(x)$.
 
 Every model is trained for 30 epochs with a learning rate of 0.0001 and a batch size of 128 using ADAM\cite{DBLP:journals/corr/KingmaB14}. The dimension of the latent space is 32. $\beta$-VAE uses $\beta = 5$, while $\beta$-TCVAE uses $\beta = 20$. The negative loglikelihood is used as a loss function for the probabilistic models, the AE uses mse.
 
 The samples are produced by sampling a latent vector from the prior $\mathcal{N}(0,1)$ and using it as an input for the decoder.
+
+For $\mathbb{E}_{z \sim q}\left[ q(x) \right]$, the estimator shown in \cite{chen2019isolating} is used:
+\begin{equation}
+	\mathbb{E}_{z \sim q} \left[ q(x) \right] \approx \frac{1}{M} \sum_{i = 1}^{M} \left[ \log \frac{1}{NM} \sum_{j = 1}^{M}q(z_i|n_j) \right]\,.
+\end{equation}
 
 
 \subsection{Results}
@@ -238,6 +246,9 @@ The reduction in reconstruction accuracy can also been seen in the bluriness of 
 Related work like \cite{DBLP:journals/corr/BaoCWLH17} has shown that the issue of bluriness can be addressed by combining VAEs and GANs. This gives a model that is able to generate realistic looking images while still giving control over the features of the generated image.
 
 \section{Conclusion}
+In this report, various VAE-based models have been discussed. Deterministic AEs lack the ability to generate data, due to their complete lack of regularization in the latent space. VAE uses the Kullback Leibler Divergence to introduce such a regularization, resulting in a latent space that can be used for the generation of new data. By scaling the Kullback Leibler Divergence, $\beta$-VAE further improves this, pressuring the model to use its latent space more efficient. The decomposition of the regularization into its components and scaling those more specialized terms lets $\beta$-TCVAE use its latent space even more efficient, allowing it to disentangle the latent features better than the other models.
+
+A problem that persists is the evaluation of the disentanglement. One method uses trained linear classifiers \cite{higgins2017vae}. Another method uses a metric based on \textit{mutual information} \cite{chen2019isolating}.
 
 \bibliographystyle{plain}
 \bibliography{references}

@@ -2,6 +2,7 @@
 import numpy as np
 
 import tensorflow_probability as tfp
+tfpl = tfp.layers
 
 def wrap_model(encoder, decoder):
     if type(encoder.layers[-1]) == tfpl.IndependentNormal:

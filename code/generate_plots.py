@@ -11,18 +11,18 @@ from plots import *
 from util import *
 
 if __name__ == '__main__':
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     parser = argparse.ArgumentParser(description='script for preprocessing of the celeba dataset')
-    parser.add_argument('--data', metavar='[DATASET PATH]', type=str, nargs=1, help='path to dataset')
-    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, nargs=1, help='path to plot destination')
-    parser.add_argument('--config', metavar='[CONFIG PATH]', type=str, nargs=1, help='path to config')
-    parser.add_argument('--num_images', metavar='N', type=int, nargs=1, default=5,
+    parser.add_argument('--data', metavar='[DATASET PATH]', type=str, help='path to dataset')
+    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, help='path to plot destination')
+    parser.add_argument('--config', metavar='[CONFIG PATH]', type=str, help='path to config')
+    parser.add_argument('--num_images', metavar='N', type=int, default=5,
                         help='path to folder containing models')
 
     args = parser.parse_args()
 
     data_path = args.data
     num_images = args.num_images
-    models_path = args.models
     config_path = args.config
     plot_path = args.dst
     imgs = []

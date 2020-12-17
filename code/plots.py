@@ -18,52 +18,6 @@ INCHES_PER_PT = 1.0 / 72.27
 GOLDEN_MEAN = (np.sqrt(5) - 1.0) / 2.0
 
 
-def clip(x):
-    return np.clip(x, 0, 1)
-
-
-class Model:
-    def __init__(self, encoder, decoder, latent_dim, output_shape=(64, 64, 3)):
-        self.encoder = encoder
-        self.decoder = decoder
-        self.latent_dim = latent_dim
-        self.output_shape = output_shape
-
-
-class DeterministicAE(Model):
-    def __init__(self, encoder, decoder, latent_dim, output_shape=(64, 64, 3)):
-        super().__init__(encoder, decoder, latent_dim, output_shape)
-
-    def get_latent(self, img):
-        return self.encoder(np.expand_dims(img, 0))[0]
-
-    def get_reconstruction(self, z):
-        return clip(self.decoder(np.expand_dims(z, 0))[0])
-
-    def sample(self):
-        z = np.random.normal(size=(1, self.latent_dim))
-        return clip(self.decoder(z)[0])
-
-
-class ProbabilisticAE(Model):
-    def __init__(self, encoder, decoder, latent_dim, output_shape=(64, 64, 3)):
-        super().__init__(encoder, decoder, latent_dim, output_shape)
-
-    def get_latent(self, img):
-        qz_n = self.encoder(np.expand_dims(img, 0))
-        return qz_n.sample()[0]
-
-    def get_reconstruction(self, z):
-        px_z = self.decoder(np.expand_dims(z, 0))
-        return clip(px_z.mean()[0])
-
-    def sample(self):
-        z = np.random.normal(size=(1, self.latent_dim))
-        px_z = self.decoder(z)
-
-        return clip(px_z.mean()[0])
-
-
 def plot_comparison_disentanglement(imgs: list, models: list, model_names: list, feature_dict: dict, min_z=-6,
                                     max_z=6, num_steps=6, range_dict: dict = {}, substitution_dict: dict = {}):
     fig_width = COLUMN_WIDTH * 2 * INCHES_PER_PT

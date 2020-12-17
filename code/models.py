@@ -12,6 +12,7 @@ tfd = tfp.distributions
 img_width, img_height = (64, 64)
 input_shape = (img_width, img_height, 3)
 
+
 def get_encoder(latent_dims, probabilistic=False):
     encoder_inputs = keras.Input(shape=input_shape)
     x = layers.Conv2D(64, 4, strides=2, padding="same", use_bias=False)(encoder_inputs)
@@ -78,6 +79,17 @@ def get_decoder(latent_dims, probabilistic=False):
     return decoder
 
 
+def total_correlation(zs, qz_x):
+    mu = qz_x.mean()
+    sigma = qz_x.variance()
+
+    log_qz_prob = tfd.Normal(tf.expand_dims(mu, 0), tf.expand_dims(sigma, 0)).log_prob(tf.expand_dims(zs, 1))
+    log_qz_prod = tf.reduce_sum(tf.reduce_logsumexp(log_qz_prob, axis=1, keepdims=False), axis=1, keepdims=False)
+    log_qz = tf.reduce_logsumexp(tf.reduce_sum(log_qz_prob, axis=2, keepdims=False), axis=1, keepdims=False)
+
+    return log_qz - log_qz_prod
+
+
 class VAE(keras.Model):
     def __init__(self, beta=1, tc=False, latent_dims=32, **kwargs):
         super(VAE, self).__init__(**kwargs)
@@ -104,7 +116,7 @@ class VAE(keras.Model):
 
             log_px_z = px_z.log_prob(data)
             kl = qz_x.log_prob(z) - self.prior.log_prob(z)
-            tc = self.total_correlation(z, qz_x)
+            tc = total_correlation(z, qz_x)
 
             if self.tc:
                 elbo = log_px_z - kl - (self.beta - 1) * tc
@@ -121,18 +133,6 @@ class VAE(keras.Model):
             'kl': kl,
             'tc': tc
         }
-
-    def total_correlation(self, zs, qz_x):
-        mu = qz_x.mean()
-        sigma = qz_x.variance()
-
-        log_qz_prob = tfd.Normal(tf.expand_dims(mu, 0), tf.expand_dims(sigma, 0)).log_prob(tf.expand_dims(zs, 1))
-
-        log_qz_prod = tf.reduce_sum(tf.reduce_logsumexp(log_qz_prob, axis=1, keepdims=False), axis=1, keepdims=False)
-
-        log_qz = tf.reduce_logsumexp(tf.reduce_sum(log_qz_prob, axis=2, keepdims=False), axis=1, keepdims=False)
-
-        return log_qz - log_qz_prod
 
     def save(self, save_path):
         self.encoder.save(os.path.join(save_path, 'encoder'))

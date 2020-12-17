@@ -6,3 +6,5 @@
 *.out
 *.gz
 .idea/*
+*.bcf
+*.run.xml

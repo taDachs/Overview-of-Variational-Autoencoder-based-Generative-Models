@@ -9,15 +9,15 @@ from models import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='script for training the models')
-    parser.add_argument('--model', metavar='M', type=str, nargs=1, help='type of model')
-    parser.add_argument('--data', metavar='[DATASET PATH]', type=str, nargs=1, help='path to dataset')
-    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, nargs=1, help='path to model save destination')
-    parser.add_argument('--epochs', metavar='N', type=int, default=30, nargs=1, help='Number of epochs trained')
-    parser.add_argument('--learning-rate', metavar='l', type=float, default=0.001, nargs=1,
+    parser.add_argument('--model', metavar='M', type=str, required=True, help='type of model')
+    parser.add_argument('--data', metavar='[DATASET PATH]', type=str, required=True, help='path to dataset')
+    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, required=True, help='path to model save destination')
+    parser.add_argument('--epochs', metavar='N', type=int, default=30, help='Number of epochs trained')
+    parser.add_argument('--learning-rate', metavar='l', type=float, default=0.001, 
                         help='learning rate for model')
-    parser.add_argument('--latent', metavar='L', type=int, default=32, nargs=1, help='dimension of latent space')
-    parser.add_argument('--beta', metavar='B', type=float, default=1, nargs=1, help='beta regularizer')
-    parser.add_argument('--threads', metavar='T', type=int, nargs=1, default=1,
+    parser.add_argument('--latent', metavar='L', type=int, default=32, help='dimension of latent space')
+    parser.add_argument('--beta', metavar='B', type=float, default=1, help='beta regularizer')
+    parser.add_argument('--threads', metavar='T', type=int, default=1,
                         help='number of worker threads for training process')
     parser.add_argument('--allow-growth', action='store_true',
                         help='if set, allows memory growth for gpu accelerated learning')
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     latent_dims = args.latent
     beta = args.beta
     workers = args.threads
-    allow_growth = args.growth
+    allow_growth = args.allow_growth
 
     if allow_growth:
         gpus = tf.config.experimental.list_physical_devices('GPU')

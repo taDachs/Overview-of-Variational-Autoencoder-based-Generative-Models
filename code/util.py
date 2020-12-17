@@ -3,7 +3,8 @@ import os
 import json
 
 import tensorflow.keras as keras
-import tensorflow_probabilisty.layers as tfpl
+import tensorflow_probability as tfp
+tfpl = tfp.layers
 
 from plots import ProbabilisticAE, DeterministicAE
 

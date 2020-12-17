@@ -10,8 +10,8 @@ from model_wrapper import *
 def substitute(s, substitution_dict):
     s = substitution_dict[s]
     if 'BETA' in s:
-        s = s.replace('BETA', '')
-        s = rf'$\beta${s}'
+        s = s.replace('BETA', r'$\beta$')
+        #s = rf'{s}'
     return s
 
 
@@ -26,7 +26,8 @@ def parse_plot_config(config_path):
     with open(config_path) as json_file:
         data = json.load(json_file)
 
-    models_dir = data.pop('model_path')
+    config_parent = os.path.dirname(config_path)
+    models_dir = data.pop('model_path').replace('PWD', config_parent)
     substitution_dict = data.pop('substitute')
 
     model_names = []

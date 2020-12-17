@@ -1,5 +1,5 @@
 {
-  "model_path": "/home/max/proseminar/Overview-of-Variational-Autoencoder-based-Generative-Models/models",
+  "model_path": "PWD/models",
   "ae": {
     "feature 1": 0,
     "feature 2": 0,

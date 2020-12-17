@@ -11,4 +11,4 @@ CONFIG_PATH=$(readlink -f "$3")
 
 mkdir -p "$DESTINATION_PATH"
 
-python3 code/generate_plots.py --data "$DATASET_DIR" --dst "$DESTINATION_PATH" --num_images 5 --config "$CONFIG_PATH"
+python3 code/generate_plots.py --data "$DATASET_DIR" --dst "$DESTINATION_PATH" --num-images 5 --config "$CONFIG_PATH"

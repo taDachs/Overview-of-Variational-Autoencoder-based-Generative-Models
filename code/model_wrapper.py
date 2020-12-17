@@ -21,15 +21,24 @@ def clip(x):
     return np.clip(x, 0, 1)
 
 
-class Model:
+class ModelWrapper:
     def __init__(self, encoder, decoder, latent_dim, output_shape=(64, 64, 3)):
         self.encoder = encoder
         self.decoder = decoder
         self.latent_dim = latent_dim
         self.output_shape = output_shape
 
+    def get_latent(self, img):
+        raise NotImplementedError
 
-class DeterministicAE(Model):
+    def get_reconstruction(self, z):
+        raise NotImplementedError
+
+    def sample(self):
+        raise NotImplementedError
+
+
+class DeterministicAE(ModelWrapper):
     def __init__(self, encoder, decoder, latent_dim, output_shape=(64, 64, 3)):
         super().__init__(encoder, decoder, latent_dim, output_shape)
 
@@ -44,7 +53,7 @@ class DeterministicAE(Model):
         return clip(self.decoder(z)[0])
 
 
-class ProbabilisticAE(Model):
+class ProbabilisticAE(ModelWrapper):
     def __init__(self, encoder, decoder, latent_dim, output_shape=(64, 64, 3)):
         super().__init__(encoder, decoder, latent_dim, output_shape)
 

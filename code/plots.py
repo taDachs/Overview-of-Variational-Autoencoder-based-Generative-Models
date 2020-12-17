@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import matplotlib.pyplot as plt
+
 import matplotlib
 import numpy as np
 
 import tensorflow_probability as tfp
 
 from util import substitute
+from model_wrapper import ModelWrapper
 
 tfpl = tfp.layers
 tfd = tfp.distributions
@@ -120,3 +122,34 @@ def plot_generative_matrix(model, ax, size=(5, 5)):
     ax.set_yticklabels([])
     ax.set_xticklabels([])
     ax.tick_params(axis='both', which='both', length=0)
+
+
+def plot_model_exploration(model: ModelWrapper, img: np.array, min_z: float = -6, max_z: float = 6,
+                           num_steps: int = 10):
+    img_height, img_width, channels = model.output_shape
+    steps = np.linspace(-15, 15, num_steps)
+    canvas = np.zeros((model.latent_dim * img_height, num_steps * img_width, channels))
+    fig, ax = plt.subplots(figsize=(3, 4))
+    z = model.get_latent(img)
+
+    for j in range(model.latent_dim):
+        z_temp = np.copy(z)
+
+        for i, step in enumerate(steps):
+            z_temp[j] = step
+            reconstruction = model.get_reconstruction(z_temp)
+            canvas[j * img_width : (j + 1) * img_width, i * img_height : (i + 1) * img_height] = reconstruction
+
+    ax.imshow(canvas)
+    start_range_y = img_height // 2
+    end_range_y = model.latent_dim * img_height + start_range_y
+    pixel_range_y = np.arange(start_range_y, end_range_y, img_height)
+    ax.set_yticks(pixel_range_y)
+    ax.set_yticklabels(list(range(model.latent_dim)))
+    start_range_x = img_width // 2
+    end_range_x = num_steps * img_height + start_range_x
+    pixel_range_x = np.arange(start_range_x, end_range_x, img_height)
+    ax.set_xticks(pixel_range_x)
+    ax.set_xticklabels(steps)
+
+    return fig, ax

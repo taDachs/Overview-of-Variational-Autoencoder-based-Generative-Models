@@ -50,14 +50,17 @@ if __name__ == '__main__':
                                                  feature_dict=feature_dict, range_dict=range_dict,
                                                  substitution_dict=substitution_dict)
 
-        fig.savefig(os.path.join(plot_path, 'disentanglement_comparison.pgf'), dpi=200, bbox_inches='tight')
-        fig.savefig(os.path.join(plot_path, 'disentanglement_comparison.pdf'), dpi=200, bbox_inches='tight')
+        fig.savefig(os.path.join(plot_path, 'disentanglement_comparison.pgf'), dpi=300, bbox_inches='tight')
+        fig.savefig(os.path.join(plot_path, 'disentanglement_comparison.pdf'), dpi=300, bbox_inches='tight')
 
         fig, _ = plot_comparison_generative(models=models, model_names=model_names, size=(num_images, num_images),
                                             substitution_dict=substitution_dict)
-        fig.savefig(os.path.join(plot_path, 'generative_comparison.pgf'), dpi=200, bbox_inches='tight')
-        fig.savefig(os.path.join(plot_path, 'generative_comparison.pdf'), dpi=200, bbox_inches='tight')
+        fig.savefig(os.path.join(plot_path, 'generative_comparison.pgf'), dpi=300, bbox_inches='tight')
+        fig.savefig(os.path.join(plot_path, 'generative_comparison.pdf'), dpi=300, bbox_inches='tight')
     elif explore_model is not None and config_path is None:
         encoder, decoder = load_encoder_decoder(explore_model)
         model = wrap_model(encoder, decoder)
         fig, _ = plot_model_exploration(model, imgs[0])
+        fig.savefig(os.path.join(plot_path, 'model_exploration.pdf'), dpi=300, bbox_inches='tight')
+    else:
+        print('error, cant use both explore-model and config')

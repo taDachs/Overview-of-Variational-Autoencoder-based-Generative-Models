@@ -11,7 +11,6 @@ def substitute(s, substitution_dict):
     s = substitution_dict[s]
     if 'BETA' in s:
         s = s.replace('BETA', r'$\beta$')
-        #s = rf'{s}'
     return s
 
 

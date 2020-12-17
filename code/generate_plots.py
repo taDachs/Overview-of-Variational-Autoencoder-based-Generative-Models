@@ -43,14 +43,14 @@ if __name__ == '__main__':
 
     models, model_names, feature_dict, range_dict, substitution_dict = parse_plot_config(config_path)
 
-    fig, ax = plot_comparison_disentanglement(imgs=imgs, models=models, model_names=model_names,
-                                              feature_dict=feature_dict, range_dict=range_dict,
-                                              substitution_dict=substitution_dict)
+    fig, _ = plot_comparison_disentanglement(imgs=imgs, models=models, model_names=model_names,
+                                             feature_dict=feature_dict, range_dict=range_dict,
+                                             substitution_dict=substitution_dict)
 
     fig.savefig(os.path.join(plot_path, 'disentanglement_comparison.pgf'), dpi=200, bbox_inches='tight')
     fig.savefig(os.path.join(plot_path, 'disentanglement_comparison.pdf'), dpi=200, bbox_inches='tight')
 
-    fig, ax = plot_comparison_generative(models=models, model_names=model_names, size=(num_images, num_images),
-                                         substitution_dict=substitution_dict)
+    fig, _ = plot_comparison_generative(models=models, model_names=model_names, size=(num_images, num_images),
+                                        substitution_dict=substitution_dict)
     fig.savefig(os.path.join(plot_path, 'generative_comparison.pgf'), dpi=200, bbox_inches='tight')
     fig.savefig(os.path.join(plot_path, 'generative_comparison.pdf'), dpi=200, bbox_inches='tight')

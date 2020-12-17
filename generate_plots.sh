@@ -5,9 +5,9 @@ if [ "$#" -ne 3 ] || ! [ -d "$1" ]; then
   exit 1
 fi
 
-DATASET_DIR=$(readlink -f $1)
-DESTINATION_PATH=$(readlink -f $2)
-CONFIG_PATH=$(readlink -f $3)
+DATASET_DIR=$(readlink -f "$1")
+DESTINATION_PATH=$(readlink -f "$2")
+CONFIG_PATH=$(readlink -f "$3")
 
 mkdir -p "$DESTINATION_PATH"
 

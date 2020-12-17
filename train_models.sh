@@ -5,7 +5,7 @@ if [ "$#" -ne 1 ] || ! [ -d "$1" ]; then
   exit 1
 fi
 
-DATASET_DIR=$(readlink -f $1)
+DATASET_DIR=$(readlink -f "$1")
 
 python3 code/train_model.py --data "$DATASET_DIR" --model ae --epochs 1 --learning-rate 0.0001 --latent 32 --dst ./models/ae --allow-growth
 python3 code/train_model.py --data "$DATASET_DIR" --model vae --epochs 1 --learning-rate 0.0001 --latent 32 --dst ./models/vae --allow-growth

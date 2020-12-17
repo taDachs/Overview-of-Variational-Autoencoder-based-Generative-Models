@@ -11,7 +11,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='script for training the models')
     parser.add_argument('--model', metavar='M', type=str, required=True, help='type of model')
     parser.add_argument('--data', metavar='[DATASET PATH]', type=str, required=True, help='path to dataset')
-    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, required=True, help='path to model save destination')
+    parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, required=True,
+                        help='path to model save destination')
     parser.add_argument('--epochs', metavar='N', type=int, default=30, help='Number of epochs trained')
     parser.add_argument('--learning-rate', metavar='l', type=float, default=0.001, 
                         help='learning rate for model')

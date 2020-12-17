@@ -2,17 +2,20 @@
 import numpy as np
 
 import tensorflow_probability as tfp
+
 tfpl = tfp.layers
+
 
 def wrap_model(encoder, decoder):
     if type(encoder.layers[-1]) == tfpl.IndependentNormal:
-        ModelType = ProbabilisticAE
+        model_wrapper = ProbabilisticAE
         latent_dims = encoder.layers[-1].output[1].shape[1]
     else:
-        ModelType = DeterministicAE
+        model_wrapper = DeterministicAE
         latent_dims = encoder.layers[-1].output.shape[1]
 
-    return ModelType(encoder, decoder, latent_dims)
+    return model_wrapper(encoder, decoder, latent_dims)
+
 
 def clip(x):
     return np.clip(x, 0, 1)

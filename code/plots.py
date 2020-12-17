@@ -19,7 +19,11 @@ GOLDEN_MEAN = (np.sqrt(5) - 1.0) / 2.0
 
 
 def plot_comparison_disentanglement(imgs: list, models: list, model_names: list, feature_dict: dict, min_z=-6,
-                                    max_z=6, num_steps=6, range_dict: dict = {}, substitution_dict: dict = {}):
+                                    max_z=6, num_steps=6, range_dict=None, substitution_dict=None):
+    if substitution_dict is None:
+        substitution_dict = {}
+    if range_dict is None:
+        range_dict = {}
     fig_width = COLUMN_WIDTH * 2 * INCHES_PER_PT
     fig_height = fig_width * GOLDEN_MEAN
     fig_size = [fig_width, fig_height]
@@ -33,7 +37,7 @@ def plot_comparison_disentanglement(imgs: list, models: list, model_names: list,
         'figure.figsize': fig_size
     })
 
-    fig, axs = plt.subplots(len(feature_dict), len(models), sharex=True, sharey=True, figsize=fig_size)
+    fig, axs = plt.subplots(len(feature_dict), len(models), sharex='all', sharey='all', figsize=fig_size)
 
     for i, feature_name in enumerate(feature_dict.keys()):
         for j, (model, model_name) in enumerate(zip(models, model_names)):
@@ -74,7 +78,9 @@ def plot_image_matrix(imgs, model, feature_dimension, ax, min_z=-5, max_z=5, num
 
 
 def plot_comparison_generative(models: list, model_names: list, size=(5, 5),
-                               substitution_dict: dict = {}):
+                               substitution_dict=None):
+    if substitution_dict is None:
+        substitution_dict = {}
     fig_width = COLUMN_WIDTH * INCHES_PER_PT
     fig_height = fig_width * GOLDEN_MEAN
     fig_size = [fig_width, fig_height]

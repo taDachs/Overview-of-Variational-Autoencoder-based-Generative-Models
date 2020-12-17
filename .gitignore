@@ -8,3 +8,4 @@
 .idea/*
 *.bcf
 *.run.xml
+*/__pycache__

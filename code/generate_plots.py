@@ -57,6 +57,11 @@ if __name__ == '__main__':
                                             substitution_dict=substitution_dict)
         fig.savefig(os.path.join(plot_path, 'generative_comparison.pgf'), dpi=300, bbox_inches='tight')
         fig.savefig(os.path.join(plot_path, 'generative_comparison.pdf'), dpi=300, bbox_inches='tight')
+
+        fig, _ = plot_comparison_reconstruction(imgs=imgs, models=models, model_names=model_names,
+                                                substitution_dict=substitution_dict)
+        fig.savefig(os.path.join(plot_path, 'reconstruction_comparison.pgf'), dpi=300, bbox_inches='tight')
+        fig.savefig(os.path.join(plot_path, 'reconstruction_comparison.pdf'), dpi=300, bbox_inches='tight')
     elif explore_model is not None and config_path is None:
         encoder, decoder = load_encoder_decoder(explore_model)
         model = wrap_model(encoder, decoder)

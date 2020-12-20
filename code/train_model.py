@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import sys
 
 import tensorflow as tf
 from tensorflow import keras
@@ -69,5 +70,9 @@ if __name__ == '__main__':
         raise NotImplementedError
 
     model.compile(optimizer=keras.optimizers.Adam(learning_rate))
-    history = model.fit(train_generator, epochs=epochs, workers=workers)
+    try:
+        history = model.fit(train_generator, epochs=epochs, workers=workers)
+    except:
+        print('model failed')
+        sys.exit(1)
     model.save(save_path)

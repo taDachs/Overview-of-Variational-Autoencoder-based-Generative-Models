@@ -9,3 +9,6 @@
 *.bcf
 *.run.xml
 */__pycache__
+datasets/*
+models/*
+plots/*

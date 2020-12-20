@@ -68,4 +68,4 @@ if __name__ == '__main__':
         fig, _ = plot_model_exploration(model, imgs[0])
         fig.savefig(os.path.join(plot_path, 'model_exploration.pdf'), dpi=300, bbox_inches='tight')
     else:
-        print('error, cant use both explore-model and config')
+        print('error, have to use either explore-model or config')

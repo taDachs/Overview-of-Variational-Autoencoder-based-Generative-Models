@@ -7,7 +7,7 @@ import numpy as np
 import tensorflow_probability as tfp
 
 from util import substitute
-from model_wrapper import ModelWrapper
+from model_wrapper import ModelWrapper, ModelMockup
 
 tfpl = tfp.layers
 tfd = tfp.distributions
@@ -146,8 +146,54 @@ def plot_model_exploration(model: ModelWrapper, img: np.array, min_z: float = -6
     pixel_range_y = np.arange(start_range_y, end_range_y, img_height)
     ax.set_yticks(pixel_range_y)
     ax.set_yticklabels(list(range(model.latent_dim)), fontsize=8)
-    start_range_x = img_width // 2
     ax.set_xticks([])
     ax.set_xticklabels([])
 
     return fig, ax
+
+
+def plot_comparison_reconstruction(imgs: list, models: list, model_names: list, substitution_dict=None):
+    if substitution_dict is None:
+        substitution_dict = {}
+
+    fig_width = COLUMN_WIDTH * INCHES_PER_PT
+    fig_height = fig_width * GOLDEN_MEAN
+    fig_size = [fig_width, fig_height]
+
+    matplotlib.use("pgf")
+    matplotlib.rcParams.update({
+        "pgf.texsystem": "pdflatex",
+        'font.family': 'serif',
+        'text.usetex': True,
+        'pgf.rcfonts': False,
+        'figure.figsize': fig_size
+    })
+
+    fig, axs = plt.subplots(1, len(models) + 1, figsize=fig_size)
+
+    for model, ax in zip([ModelMockup(imgs[0], 1)] + models, axs):
+        plot_reconstruction_matrix(imgs, model, ax)
+
+    axs[0].set_xlabel('Original')
+
+    for ax, col in zip(axs[1:], model_names):
+        if col in substitution_dict:
+            col = substitute(col, substitution_dict)
+        ax.set_xlabel(col)
+
+    plt.tight_layout()
+    plt.subplots_adjust(wspace=0.1, hspace=0.1)
+    return fig, axs
+
+
+def plot_reconstruction_matrix(imgs: list, model, ax):
+    img_width, img_height, channels = model.output_shape
+    canvas = np.zeros((img_height * len(imgs), img_width, channels))
+    for j, img in enumerate(imgs):
+        reconstruction = model.get_reconstruction(model.get_latent(img))
+        canvas[j * img_height: (j + 1) * img_height, :] = reconstruction
+
+    ax.imshow(canvas)
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+    ax.tick_params(axis='both', which='both', length=0)

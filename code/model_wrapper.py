@@ -70,3 +70,19 @@ class ProbabilisticAE(ModelWrapper):
         px_z = self.decoder(z)
 
         return clip(px_z.mean()[0])
+
+
+class ModelMockup(ModelWrapper):
+    def __init__(self, img, latent_dim):
+        super().__init__(None, None, latent_dim, img.shape)
+        self.img = img
+
+    def get_latent(self, img):
+        self.img = img
+        return np.zeros(self.latent_dim)
+
+    def get_reconstruction(self, z):
+        return self.img
+
+    def sample(self):
+        return self.img

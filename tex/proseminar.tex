@@ -25,7 +25,7 @@
 \maketitle
 
 \begin{abstract}
-This work tries to give the reader an overview over generative models based on the variational autoencoder framework and how they learn to disentangle the latent features of given data. It explains the basic functionality of autoencoders and how different models improved upon that. One of those models is the Variational Autoencoder. It introduces the concept of the Evidence Lower Bound and utilizes it to learn the latent features of a given probability distribution. The $\beta$-Variational Autoencder outperforms the Variational Autoencoder by adding a scaling to parts of the Evidence Lower Bound. The $\beta$-Total Correlation Variational Autoencoder further improves this method by decomposing the Evidence Lower Bound and scaling only relevant parts.
+This work tries to give the reader an overview over generative models based on the variational autoencoder framework and how they learn to disentangle the latent features of given data. It explains the basic functionality of autoencoders and how different models improved upon that. One of those models is the Variational Autoencoder. It introduces the concept of the Evidence Lower Bound and utilizes it to learn the latent features of a given probability distribution. The $\beta$-Variational Autoencoder is one of such improvements; it performs better at disentangling such learnt features. This aspect is further improved upon by the $\beta$-Total Correlation Autoencoder. It outperforms $\beta$-Variational Autoencoder at the disentanglement of the latent features.
 \end{abstract}
 
 \section{Introduction}
@@ -33,9 +33,9 @@ A generative model deals with the modeling of probability distributions from raw
 
 While those models are trained autoassociativ, which means that it tries to map an input to itself, only the decoder part of the models is used as a generator. This is done by using noise sampled from a probability distribution and using it as an input for the decoder. The architecture of an \textit{Autoencoder} (\textbf{AE}) was first proposed in \cite{ballard1987modulalearning}. There it is defined as an autoassociative model trained by mean square error. Its intended use was to extract features from input data for use in different machine learning algorithms as a way to deal with the low performing hardware used at that time \cite{ballard1987modulalearning}. Today it is used for many more applications, like noise reduction or anomaly detection. AEs are not really capable of generating meaningful data, but they are the basis for the other models discussed here.
 
-An enhanced version of the AE is the \textit{Vartiational Autoencoder} (\textbf{VAE}) as proposed in \cite{kingma2014autoencoding}. It has a similar architecture to an AE, but the VAE differs in the loss function and the way its latent variables are learned. The \textit{Beta Variational Autoencoder} (\textbf{\textbeta -VAE}) is a further improvement of the VAE proposed by \cite{higgins2017vae}. It introduces a regularization of the latent space and improves the disentanglement of the latent features. !\textit{Beta Total Correlation Variational Autoencoders} (\textbf{\textbeta -TCVAE}) \cite{chen2019isolating} are another improvement made by decomposing the ELBO used by VAEs and \textbeta -VAEs and then analyzing it by using concepts taken from Information Theory. It even further improves the disentanglement of \textbeta -VAE and learns an even more efficient representation of inputs in its latent space.
+An enhanced version of the AE is the \textit{Vartiational Autoencoder} (\textbf{VAE}) as proposed in \cite{kingma2014autoencoding}. It has a similar architecture to an AE, but the VAE differs in the loss function and the way its latent variables are learned. The \textit{Beta Variational Autoencoder} (\textbf{\textbeta -VAE}) is a further improvement of the VAE proposed by \cite{higgins2017vae}. It introduces a regularization of the latent space and improves the disentanglement of the latent features. \textit{Beta Total Correlation Variational Autoencoders} (\textbf{\textbeta -TCVAE}) \cite{chen2019isolating} are another improvement made by decomposing the \textit{Evidence Lower Bound} (\textbf{ELBO}) used by VAEs and \textbeta -VAEs and then analyzing it using concepts taken from Information Theory. It even further improves the disentanglement of \textbeta -VAE and learns an even more efficient representation of inputs in its latent space.
 
-In the next three sections each model will be discussed and the way it learns to represent the given data will be explained. It will also be discussed how each model improves over the previous. After that we will compare the models with each other. The report will end with a conclusion about the featured models.
+In the next four sections each model will be discussed and the way it learns to represent the given data will be explained. It will also be discussed how each model improves over the previous. After that we will compare the models with each other. The report will end with a conclusion about the featured models.
 
 \section{Autoencoder}
 \subsection{Method}
@@ -78,7 +78,7 @@ has to be minimized. Minimizing \eqref{EBOL1} would result in a better approxima
 	\label{EBOL2}
 \end{equation}
 
-where the first term is the \textit{Evidence Lower Bound} (\textit{\textbf{ELBO}})
+where the first term is the \textit{Evidence Lower Bound} ({\textbf{ELBO})
 \begin{equation}
 	ELBO = \mathbb{E}_{z \sim q} \left[ \log q(z|x) - \log p(x,z) \right]
 	\label{ELBO3}
@@ -102,7 +102,7 @@ Using this knowledge \eqref{ELBO3} can be rearranged:
 	\label{ELBO6}
 \end{equation}
 
-The first term in \eqref{ELBO6} performs the same role as MSE for the traditional AE. It tries to maximize the probability of a latent vector $z \in Z$ sampled from $q(z|x)$ to be decoded into a $\tilde{x}$ being similar to $x$. As $p(x|z)$ will be modeled by the decoder $g : Z \mapsto X$, the negative MSE can be used instead:
+The first term in \eqref{ELBO6} performs the same role as MSE for the traditional AE. It tries to maximize the probability of a latent vector $z \in Z$ sampled from $q(z|x)$ to be decoded into a $\tilde{x}$ being similar to $x$. As $p(x|z)$ will be modeled by the decoder $g : Z \mapsto X$, the negative MSE can be used as an approximation:
 \begin{equation}
 	ELBO = \mathbb{E}_{z \sim q}\left[ -||x - g(z)||^2 \right] - \mathcal{D}(q(z|x) \ \| \ p(z))\,.
 	\label{ELBO7}
@@ -151,6 +151,13 @@ Because $\beta$-VAE is equivalent to normal VAE for $\beta = 1$, $\beta$-VAE has
 \section{Beta-Total Correlation Variational Autoencoder}
 A further refinement of the VAE framework has been introduced by \cite{chen2019isolating} in the shape of the Beta Total Correlation Autoencoder. It improves the disentanglement even further by decomposing the ELBO and scaling the resulting terms.
 
+\begin{figure*}[h]
+	\centering
+    \import{plots/disentanglement_comparison/}{disentanglement_comparison.pgf}
+    \caption{Comparison of disentangled features learned by the discussed models. Each row corresponds to one features and every column to one model. The numbers in the brackets represent the range that the latent dimensions traverses from left to right. For comparison, the dimensions resembling the features the most are picked by hand for each model individually.}
+    \label{fig:disentanglement}
+\end{figure*}
+
 \subsection{Decomposition and Analysis of the ELBO}
 The Kullback-Leibler Divergence in the ELBO as seen in \eqref{ELBO6} can expanded to
 \begin{align*}
@@ -192,7 +199,7 @@ Experiments have shown that $\alpha = \gamma = 1$ and $\beta > 1$ gave the best 
 \end{align*}
 
 \subsection{Improvements of $\beta$-TCVAE}
-As the is same with $\beta$-VAE, for $\beta = 1$ $\beta$-TCVAE is equivalent to a normal VAE. The only noteworthy disadvantage therefore is the slightly more complex objective. In most other aspects $\beta$-TCVAE behaves like $\beta$-VAE. Because of that, it share the same disadvantages of lower reconstruction accuracy for higher $\beta$ as $\beta$-VAE. Experiments have shown, as will be seen in \hyperref[sec:experiments]{Section VI}, that $\beta$-TCVAE outperforms the other models at disentangling the latent features. This is the result of a more specialized ELBO, which leads to a better organized latent space. 
+As is the same with $\beta$-VAE, for $\beta = 1$ $\beta$-TCVAE is equivalent to a normal VAE. The only noteworthy disadvantage therefore is the slightly more complex objective. In most other aspects $\beta$-TCVAE behaves like $\beta$-VAE. Because of that, it share the same disadvantages of lower reconstruction accuracy for higher $\beta$ as $\beta$-VAE. Experiments have shown, as will be seen in \hyperref[sec:experiments]{Section VI}, that $\beta$-TCVAE outperforms the other models at disentangling the latent features. This is the result of a more specialized ELBO, which leads to a better organized latent space. 
 
 \section{Experiments}
 \label{sec:experiments}
@@ -209,47 +216,46 @@ Every model is trained for 30 epochs with a learning rate of 0.0001 and a batch 
 
 The samples are produced by sampling a latent vector from the prior $\mathcal{N}(0,1)$ and using it as an input for the decoder.
 
-For $\mathbb{E}_{z \sim q}\left[ q(x) \right]$, the estimator shown in \cite{chen2019isolating} is used:
+For $\mathbb{E}_{z \sim q}\left[ q(z) \right]$, the estimator shown in \cite{chen2019isolating} is used:
 \begin{equation}
-	\mathbb{E}_{z \sim q} \left[ q(x) \right] \approx \frac{1}{M} \sum_{i = 1}^{M} \left[ \log \frac{1}{NM} \sum_{j = 1}^{M}q(z_i|n_j) \right]\,.
+	\mathbb{E}_{z \sim q} \left[ q(z) \right] \approx \frac{1}{M} \sum_{i = 1}^{M} \left[ \log \frac{1}{NM} \sum_{j = 1}^{M}q(z_i|n_j) \right]\,.
 \end{equation}
-
 
 \subsection{Results}
 The main two qualities by that the models should be evaluated are the generative abilites of the model and how many disentangled latent features it learns.
 
-AE didn't generate any meaningful samples. The faces are distorted and are barely recognizable. The probabilistic models on the other hand all produced meaningful and recognizable data. The samples are blurrier compared to other generative models like GANs \cite{goodfellow2014generative}. A higher $\beta$ for $\beta$-VAE and $\beta$-TCVAE resulted in a blurrier sample. $\beta$-VAE and $\beta$-TCVAE seem to generate a more varied spectrum of samples compared to VAE.
+AE didn't generate any meaningful samples. The faces are distorted and are barely recognizable. The probabilistic models on the other hand all produced meaningful and recognizable data. This can be seen in \ref{fig:generative}. The samples are blurrier compared to other generative models like GANs \cite{goodfellow2014generative}. A higher $\beta$ for $\beta$-VAE and $\beta$-TCVAE resulted in a blurrier sample. $\beta$-VAE and $\beta$-TCVAE seem to generate a more varied spectrum of samples compared to VAE.
 
 \begin{figure}
 	\centering
     \import{plots/generative_comparison/}{generative_comparison.pgf}
-    \caption{Comparison of samples generated by each models.}
+    \caption{Comparison of samples generated by each model. AE performs worse compared to \ref{fig:disentanglement}, because the latent vectors used here are fully sampled from the prior $p(z)$, while the ones used in \ref{fig:disentanglement} are sampled from $p(z|x)$.}
     \label{fig:generative}
 \end{figure}
 
-Regarding feature disentanglement, a better performance can be seen at higher regularizations of the latent space. While AEs output gets partly distortet and hard to recognize while traversing the latent dimension, the probabilistc models keep their general structure. Better regularization results in less features being entangled in each other. $\beta$-TCVAE outperforms the other models in that regard, being able to change the baldness or the existence of sunglasses while keeping most significant features of the face intact.
-
-\begin{figure*}[h]
+\begin{figure}
 	\centering
-    \import{plots/disentanglement_comparison/}{disentanglement_comparison.pgf}
-    \caption{Comparison between the discussed models.}
-    \label{fig:disentanglement}
-\end{figure*}
+    \import{plots/reconstruction_comparison/}{reconstruction_comparison.pgf}
+    \caption{Comparison of different $\beta$ values for a $\beta$-TCVAE. For higher values of $\beta$, the reconstruction looses finer features like wrinkels or details of the hairstyle.}
+    \label{fig:reconstruction}
+\end{figure}
 
-Increasing $\beta$ also makes the faces loose smaller or unique features. For example, clear glasses seem to get lost in the reconstruction and are not learned by the model. This can lead to faces looking more similiar to each other.
+Regarding feature disentanglement, a better performance can be seen at higher regularizations of the latent space. While AEs output gets partly distortet and hard to recognize while traversing the latent dimension, the probabilistc models keep their general structure. Better regularization results in less features being entangled in each other. $\beta$-TCVAE outperforms the other models in that regard, being able to change the baldness or the existence of sunglasses while keeping most significant features of the face intact. This can be seen in \ref{fig:disentanglement}.
+
+Increasing $\beta$ also makes the faces loose smaller or unique features. For example, clear glasses seem to get lost in the reconstruction and are not learned by the model. This may lead to faces looking more similiar to each other. This can be seen in \ref{fig:reconstruction}.
 
 \subsection{Discussion}
 The results of the experiments show that a higher and, more importantly, a specialized regularization of the latent space result in better disentanglement of the latent features. This can be seen when comparing $\beta$-VAE and $\beta$-TCVAE with each other. $\beta$-TCVAE performs better because it optimizes only the term that regularizes the independence of the latent dimensions, therefore reducing entanglement between dimensions.
 
-The reduction in reconstruction accuracy can also been seen in the bluriness of the images. As mentioned before, when increasing $\beta$, a tradeoff has to be made between bluriness and disentanglement.
+The reduction in reconstruction accuracy can also been seen in the bluriness of the images. As mentioned before, when increasing $\beta$, a tradeoff has to be made between bluriness and disentanglement. Another tradeoff that should be considered is the dimension of the latent space. A too big latent space with too little regularization can lead to high entanglement, while a too small latent space with too much regularization can lead to the loss of features and therefore a lower reconstruction accuracy. A small latent space, combined with a high pressure for disentanglement, means less space for learned features. As high regularization pressures the model to encode every feature in its own latent dimension, more features have to be ignored and are therefore lost in the reconstruction. Too little regularization on the other side can result in more entanglement, because the model tries the optimize $\log p(x|z)$ by storing more information in the latent space. Bigger latent spaces on the other hand can lead to bigger models, resulting in longer training times.
 
 Related work like \cite{DBLP:journals/corr/BaoCWLH17} has shown that the issue of bluriness can be addressed by combining VAEs and GANs. This gives a model that is able to generate realistic looking images while still giving control over the features of the generated image.
 
 \section{Conclusion}
 In this report, various VAE-based models have been discussed. Deterministic AEs lack the ability to generate data, due to their complete lack of regularization in the latent space. VAE uses the Kullback Leibler Divergence to introduce such a regularization, resulting in a latent space that can be used for the generation of new data. By scaling the Kullback Leibler Divergence, $\beta$-VAE further improves this, pressuring the model to use its latent space more efficient. The decomposition of the regularization into its components and scaling those more specialized terms lets $\beta$-TCVAE use its latent space even more efficient, allowing it to disentangle the latent features better than the other models.
 
-A problem that persists is the evaluation of the disentanglement. One method uses trained linear classifiers \cite{higgins2017vae}. Another method uses a metric based on \textit{mutual information} \cite{chen2019isolating}.
+Future work could focus the evaluation of the disentanglement. One method already proposed uses trained linear classifiers \cite{higgins2017vae}. Another method uses a metric based on \textit{mutual information} \cite{chen2019isolating}. With a better disentanglement metric than visual inspection by a human, it would be easier to compare different models and hyperparameters with each other.
 
-\bibliographystyle{plain}
+\bibliographystyle{unsrt}
 \bibliography{references}
 \end{document}

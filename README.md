@@ -32,4 +32,5 @@ sh generate_plots.sh datasets/cropped/img ./plots ./my_config.json
 - [An Introduction to Variational Autoencoders](https://arxiv.org/abs/1906.02691)
 - [beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework](https://openreview.net/forum?id=Sy2fzU9gl)
 - [Isolating Sources of Disentanglement in VAEs](https://arxiv.org/abs/1802.04942)
+
 for more information see the references in the report

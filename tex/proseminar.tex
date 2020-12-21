@@ -25,13 +25,13 @@
 \maketitle
 
 \begin{abstract}
-This work tries to give the reader an overview over generative models based on the variational autoencoder framework and how they learn to disentangle the latent features of given data. It explains the basic functionality of autoencoders and how different models improved upon that. One of those models is the Variational Autoencoder. It introduces the concept of the Evidence Lower Bound and utilizes it to learn the latent features of a given probability distribution. The $\beta$-Variational Autoencoder is one of such improvements; it performs better at disentangling such learnt features. This aspect is further improved upon by the $\beta$-Total Correlation Autoencoder. It outperforms $\beta$-Variational Autoencoder at the disentanglement of the latent features.
+This work tries to give the reader an overview over generative models based on the variational autoencoder framework and how they learn to disentangle the latent features of given data. It explains the basic functionality of autoencoders and how different models improved upon that. One of those models is the Variational Autoencoder. It introduces the concept of the Evidence Lower Bound and utilizes it to learn the latent features of a given probability distribution. The $\beta$-Variational Autoencoder is one improvement of this concept that performs better at disentangling such learnt features. This aspect is further improved upon by the $\beta$-Total Correlation Autoencoder. It outperforms $\beta$-Variational Autoencoder at the disentanglement of the latent features.
 \end{abstract}
 
 \section{Introduction}
-A generative model deals with the modeling of probability distributions from raw data \cite{doersch2016tutorial}. After training, this model can be used for generating new data instances. Having accurate models of random processes is advantageous for many fields. It could, for example, be used to enhance a dataset with more samples or for detecting outliers or anomalies. It is also useful for the generation of new data. When generating samples, those with high probability are desired to be more likely than those with lower probability \cite{doersch2016tutorial}. At the same time, at least a low amount of control about the samples being generated is beneficial. For example, when generating 3d-models of trees for a video game \cite{doersch2016tutorial}, it might be convenient to choose the "style" of tree (conifer or deciduous) or the color of the leaves. Learning an efficient representation of such higher dimensional features is one goal of generative models. In the most ideal situation, those features should also be disentangled. Take the task of generating human faces as an example: When adjusting the hair style of a generated face, the gender should not change.
+A generative model deals with the modeling of probability distributions from raw data \cite{doersch2016tutorial}. After training, this model can be used for the generation of new data instances. Having accurate models of random processes is advantageous for many fields. It could, for example, be used to enhance a dataset with more samples or for detecting outliers or anomalies. When generating samples, those with high probability are desired to be more likely than those with lower probability \cite{doersch2016tutorial}. At the same time, at least a low amount of control about the samples being generated is beneficial. For example, when generating 3d-models of trees for a video game \cite{doersch2016tutorial}, it might be convenient to choose the "style" of tree (conifer or deciduous) or the color of the leaves. Learning an efficient representation of such higher dimensional features is one goal of generative models. In the most ideal situation, those features should also be disentangled. Take the task of generating human faces as an example: When adjusting the hair style of a generated face, the gender should not change.
 
-While those models are autoassociativ, which means that it tries to map an input to itself, only the decoder part of the models is used as a generator. This is done by using noise sampled from a probability distribution and using it as an input for the decoder. The architecture of an \textit{Autoencoder} (\textbf{AE}) was first proposed in \cite{ballard1987modulalearning}. There it is defined as an autoassociative model trained by mean square error. Its intended use was to extract features from input data for use in different machine learning algorithms as a way to deal with the low performing hardware used at that time \cite{ballard1987modulalearning}. Today it is used for many more applications, like noise reduction or anomaly detection. AEs are not really capable of generating meaningful data, but they are the basis for the other models discussed here.
+While those models are autoassociativ, which means that they try to map an input to itself, only the decoder part of the models is used as a generator. This is done by sampling noise from a probability distribution and using it as an input for the decoder. The architecture of an \textit{Autoencoder} (\textbf{AE}) was first proposed in \cite{ballard1987modulalearning}. There it is defined as an autoassociative model trained by mean square error. Its intended use was to extract features from input data for use in different machine learning algorithms as a way to deal with the low performing hardware used at that time \cite{ballard1987modulalearning}. Today it is used for many more applications, like noise reduction or anomaly detection. AEs are not really capable of generating meaningful data, but they are the basis for the other models discussed here.
 
 An enhanced version of the AE is the \textit{Vartiational Autoencoder} (\textbf{VAE}) as proposed in \cite{kingma2014autoencoding}. It has a similar architecture to an AE, but the VAE differs in the loss function and the way its latent variables are learned. The \textit{Beta Variational Autoencoder} (\textbf{\textbeta -VAE}) is a further improvement of the VAE proposed by \cite{higgins2017vae}. It introduces a regularization of the latent space and improves the disentanglement of the latent features. \textit{Beta Total Correlation Variational Autoencoders} (\textbf{\textbeta -TCVAE}) \cite{chen2019isolating} are another improvement made by decomposing the \textit{Evidence Lower Bound} (\textbf{ELBO}) used by VAEs and \textbeta -VAEs and then analyzing it using concepts taken from Information Theory. It even further improves the disentanglement of \textbeta -VAE and learns an even more efficient representation of inputs in its latent space.
 
@@ -53,7 +53,7 @@ where $\theta_1$ and $\theta_2$ are the parameters of $f$ and $g$, $n$ is the nu
 To prevent either $f$ or $g$ from just learning the identity function $id(x) = x$, an artificial information bottleneck is introduced by making $Z$ lower dimensional than $X$. Therefore, $f$ must learn a representation (encoding) of $x$ in its latent space. This is also called representation learning \cite{DBLP:journals/corr/abs-1206-5538}. 
 
 \subsection{Latent Space}
-For an efficient encoding, the latent space must have specific qualities: \textit{a)} latent vectors close to each other in $Z$ should produce samples close to each other in $X$ (\textbf{continuity}) and \textit{b)} every vector $z \in Z$ should produce meaningful data (\textbf{completeness}). Using MNIST digits as an example, two fours that look similar to each other should produce $z_1, z_2 \in Z$ that are close to each other. At the same time, a random sample $z \in Z$ should produce a meaningful digit.
+For an efficient encoding, the latent space must have specific qualities: \textit{a)} latent vectors close to each other in $Z$ should produce samples close to each other in $X$ (\textbf{continuity}) and \textit{b)} every vector $z \in Z$ should produce meaningful data (\textbf{completeness}). Using MNIST digits as an example, two fours that look similar to each other should produce $z_1, z_2 \in Z$ that are close to each other. At the same time, a random sample $z \in Z$ should produce a meaningful digit \cite{burgess2018understanding}.
 
 May $Z = \mathbb{R}^{2}$ be taken as an example. When encoding a digit $x \in X$ with $f(x) = z$, it is desired that the features of $x$ be represented by $z$. For example, the value of the digit ($n \in \{0,1,...,9\}$) could be one encoded feature, and the angle of the number another encoded feature. For an efficient encoding, each feature would be encoded in an own dimension, so they could be changed independently of each other.
 
@@ -64,7 +64,7 @@ AEs are not used for generative purposes. The lack of structure in their latent 
 An enhancement that builds up upon the traditional AE is the Variational Autoencoder. It is a directed probabilistic graphical model \cite{kingma2014autoencoding}. It improves upon normal AEs by regulating the latent space and consequently motivates the model to learn a more efficient representation of inputs in the latent space.
 
 \subsection{Encoding in VAE}
-The assumption a VAE makes is that the data points $x \in X$ are produced by a random process, where first a $z$ is sampled from a $p(z)$, and then a $x$ is sampled from $p(x|z)$. Now, when defining the encoder from a probabilistic point of view, we want it to learn the distribution $p(z|x)$. Similarly, the decoder should learn the distribution $p(x|z)$. Sampling $z \sim p(z|x)$ would be equivalent to encoding an $x$ to $z$. The same applies for the decoder and $p(x|z)$.
+The assumption a VAE makes is that the data points $x \in X$ are produced by a random process, where first a $z$ is sampled from a $p(z)$, and then a $x$ is sampled from $p(x|z)$. Now, when defining the encoder from a probabilistic point of view, we want it to learn the distribution $p(z|x)$. Similarly, the decoder should learn the distribution $p(x|z)$. Sampling $z \sim p(z|x)$ would be equivalent to encoding an $x$ to $z$. The same applies for the decoder and $p(x|z)$ \cite{doersch2016tutorial}.
 
 May $q(z|x)$ be an approximation of $p(z|x)$. The 
 \textit{Kullback-Leibler divergence} (\textbf{KLD}) $\mathcal{D}(q \ \| \ p) \geq 0$ is a metric for comparing two probability distributions $q$ and $p$. $\mathcal{D}(q \ || \ p) = 0$ would be equivalent to $q = p$. To learn an accurate approximation of $p(z|x)$, the KLD
@@ -116,7 +116,7 @@ Plugging in the approximations gives the objective that the model has to maximiz
 	\label{ELBO8}
 \end{equation}
 
-Because $z$ is still a random variable that gets sampled from a distribution and sampling is not continuous, gradient descent is not applicable to this objective. This can be taken care of by moving the sampling to the input using the \textit{reparameterization trick}: A random variable $\epsilon$ will be sampled from a normal distribution $\mathcal{N}(0,1)$ and transformed by $h(x, \epsilon) = \mu(x) + \sqrt{\Sigma(x)} \cdot \epsilon$. 
+Because $z$ is still a random variable that gets sampled from a distribution and sampling is not continuous, gradient descent is not applicable to this objective. This can be taken care of by moving the sampling to the input using the \textit{reparameterization trick}: A random variable $\epsilon$ will be sampled from a normal distribution $\mathcal{N}(0,1)$ and transformed by $h(x, \epsilon) = \mu(x) + \sqrt{\Sigma(x)} \cdot \epsilon$ \cite{doersch2016tutorial}. 
 
 Following this the objective can be rewritten as a loss function that the model has to minimize:
 \begin{gather}
@@ -131,10 +131,10 @@ The VAE improves upon the traditional AE primarily in two points:
 By encoding the input not in a single vector but into a probability distribution, an area of the latent space gets reserved for latent vectors that produce similar $x$ when decoded by the decoder. This addresses the problem of the continuous latent space. At the same time, by having a random aspect in the sampling of $z$, the decoder learns to deal with the "blurriness" of the latent vector. This helps with the completeness of the latent space, resulting in random samples $z \in Z$ producing more meaningful data. This makes the VAE capable of being used as a generator for meaningful data. This is done by detaching the decoder from the encoder and applying noise sampled from a distribution. When doing this, the encoder is not needed anymore and can be discarded.
 
 \subsection{Problems with VAE}
-While VAEs allow for the generation of meaningful data, they still lacking structure in the latent space. Features tend to be entangled with each other, showing that the model does not learn the most efficient representation in the latent space. The optimization of the KLD also comes with its drawbacks in the shape of lower reconstruction accuracy. 
+While VAEs allow for the generation of meaningful data, they are still lacking structure in the latent space. Features tend to be entangled with each other, showing that the model does not learn the most efficient representation in the latent space. The optimization of the KLD also comes with its drawbacks in the shape of lower reconstruction accuracy. 
 
 \section{Beta-Variational Autoencoder}
-The \textbeta -VAE improves the disentanglement of VAEs by adding a single scalar to the objective:
+The $\beta$-VAE \cite{higgins2017vae} improves the disentanglement of VAEs by adding a single scalar to the objective:
 \begin{equation}
 	\mathbb{E}_{z \sim q}\left[ \log p(x|z) \right] - \beta \mathcal{D}(q(z|x) \ \| \ p(z)).
 \end{equation}
@@ -154,12 +154,12 @@ A further refinement of the VAE framework has been introduced by \cite{chen2019i
 \begin{figure*}[h]
 	\centering
     \import{plots/disentanglement_comparison/}{disentanglement_comparison.pgf}
-    \caption{Comparison of disentangled features learned by the discussed models. Each row corresponds to one features and every column to one model. The numbers in the brackets represent the range that the latent dimensions traverses from left to right. For comparison, the dimensions resembling the features the most are picked by hand for each model individually.}
+    \caption{Comparison of some of the disentangled features learned by the discussed models. Each row corresponds to one feature and every column to one model. The numbers in the brackets represent the range that the latent dimensions traverses from left to right. For comparison, the dimensions resembling the features the most are picked by hand for each model individually.}
     \label{fig:disentanglement}
 \end{figure*}
 
 \subsection{Decomposition and Analysis of the ELBO}
-The KLD in the ELBO as seen in \eqref{ELBO6} can expanded to
+The KLD in the ELBO as seen in \eqref{ELBO6} can be expanded to
 \begin{align*}
 \mathcal{D}(q(z|x) \ \| \ p(z)) =
 	\mathbb{E}_{z \sim q} \left[ \log q(z|x) - \log p(z) \right. \\
@@ -171,7 +171,7 @@ which can be rearranged to
 	= \mathcal{D}(q(z, x) \ \| \ q(z)p(x)) \\ + \mathcal{D}(q(z) \ \| \  \prod_{j} q(z_j)) \\ + \sum_j \mathcal{D}(q(z_j) \ \| \ p(z_j))
 \end{align*}
 \begin{align*}
-	= I[z;x] + \mathcal{D}(q(z) \ \| \  \prod_{j} q(z_j)) + \sum_j \mathcal{D}(q(z_j) \ \| \ p(z_j))
+	= I[z;x] + \mathcal{D}(q(z) \ \| \  \prod_{j} q(z_j)) + \sum_j \mathcal{D}(q(z_j) \ \| \ p(z_j)) \,,
 \end{align*}
 
 where the first term will be called the \textit{index-code mutual information} (\textbf{MI}), the second term is known as the \textit{total correlation} (\textbf{TC}), and the third term will be called the \textit{dimension wise KLD} \cite{chen2019isolating}.
@@ -199,7 +199,7 @@ Experiments have shown that $\alpha = \gamma = 1$ and $\beta > 1$ gave the best 
 \end{align*}
 
 \subsection{Improvements of $\beta$-TCVAE}
-As is the same with $\beta$-VAE, for $\beta = 1$ $\beta$-TCVAE is equivalent to a normal VAE. The only noteworthy disadvantage therefore is the slightly more complex objective. In most other aspects $\beta$-TCVAE behaves like $\beta$-VAE. Because of that, it share the same disadvantages of lower reconstruction accuracy for higher $\beta$ as $\beta$-VAE. Experiments have shown, as will be seen in \hyperref[sec:experiments]{Section VI}, that $\beta$-TCVAE outperforms the other models at disentangling the latent features. This is the result of a more specialized ELBO, which leads to a better organized latent space. 
+As is the same with $\beta$-VAE, for $\beta = 1$ $\beta$-TCVAE is equivalent to a normal VAE. The only noteworthy disadvantage therefore is the slightly more complex objective. In most other aspects $\beta$-TCVAE behaves like $\beta$-VAE. Because of that, it shares the same disadvantages of lower reconstruction accuracy for higher $\beta$ as $\beta$-VAE. Experiments have shown, as will be seen in \hyperref[sec:experiments]{Section VI}, that $\beta$-TCVAE outperforms the other models at disentangling the latent features. This is the result of a more specialized ELBO, which leads to a better organized latent space. 
 
 \section{Experiments}
 \label{sec:experiments}
@@ -212,7 +212,7 @@ The training set used is the celeb\_a dataset \cite{liu2015faceattributes}. It c
 
 The implementation is written in Python using Keras/Tensorflow. For modeling the normal distributions, tensorflow-probability layers are used, as they allow for easy sampling and probing of a paramterized distribution. Internally they use the reparameterization trick for sampling. Because $\Sigma(x)$ learns the variance of a normal distribution, which has to be $\geq 0$, the exponential function $\exp(x) = e^x$ is used on the output of $\Sigma(x)$.
 
-Every model is trained for 30 epochs with a learning rate of 0.0001 and a batch size of 128 using ADAM\cite{DBLP:journals/corr/KingmaB14}. The dimension of the latent space is 32. $\beta$-VAE uses $\beta = 5$, while $\beta$-TCVAE uses $\beta = 20$. The negative loglikelihood is used as a loss function for the probabilistic models, the AE uses mse.
+Every model is trained for 30 epochs with a learning rate of 0.0001 and a batch size of 128 using ADAM\cite{DBLP:journals/corr/KingmaB14}. The dimension of the latent space is 32. $\beta$-VAE uses $\beta = 5$, while $\beta$-TCVAE uses $\beta = 20$. The negative loglikelihood is used as a loss function for the probabilistic models while MSE is used for the AE.
 
 The samples are produced by sampling a latent vector from the prior $\mathcal{N}(0,1)$ and using it as an input for the decoder.
 
@@ -224,7 +224,7 @@ For $\mathbb{E}_{z \sim q}\left[ q(z) \right]$, the estimator shown in \cite{che
 \subsection{Results}
 The main two qualities by that the models should be evaluated are the generative abilites of the model and how many disentangled latent features it learns.
 
-AE didn't generate any meaningful samples. The faces are distorted and are barely recognizable. The probabilistic models on the other hand all produced meaningful and recognizable data. This can be seen in \ref{fig:generative}. The samples are blurrier compared to other generative models like GANs \cite{goodfellow2014generative}. A higher $\beta$ for $\beta$-VAE and $\beta$-TCVAE resulted in a blurrier sample. $\beta$-VAE and $\beta$-TCVAE seem to generate a more varied spectrum of samples compared to VAE.
+AE didn't generate any meaningful samples. The faces are distorted and are barely recognizable. The probabilistic models on the other hand all produced meaningful and recognizable data. This can be seen in \ref{fig:generative}. The samples are blurrier compared to other generative models like GANs \cite{goodfellow2014generative}. $\beta$-VAE and $\beta$-TCVAE seem to generate a more varied spectrum of samples compared to VAE.
 
 \begin{figure}
 	\centering
@@ -252,7 +252,7 @@ The reduction in reconstruction accuracy can also been seen in the bluriness of 
 Related work like \cite{DBLP:journals/corr/BaoCWLH17} has shown that the issue of bluriness can be addressed by combining VAEs and GANs. This gives a model that is able to generate realistic looking images while still giving control over the features of the generated image.
 
 \section{Conclusion}
-In this report, various VAE-based models have been discussed. Deterministic AEs lack the ability to generate data, due to their complete lack of regularization in the latent space. VAE uses the KLD to introduce such a regularization, resulting in a latent space that can be used for the generation of new data. By scaling the KLD, $\beta$-VAE further improves this, pressuring the model to use its latent space more efficient. The decomposition of the regularization into its components and scaling those more specialized terms lets $\beta$-TCVAE use its latent space even more efficient, allowing it to disentangle the latent features better than the other models.
+In this report, various VAE-based models have been discussed. Deterministic AEs lack the ability to generate data, due to their complete lack of regularization in the latent space. VAE uses the KLD to introduce such a regularization, resulting in a latent space that can be used for the generation of new data. By scaling the KLD, $\beta$-VAE further improves this, pressuring the model to use its latent space more efficient and therefore disentangling the latent features. The decomposition of the regularization into its components and scaling those more specialized terms lets $\beta$-TCVAE use its latent space even more efficient, allowing it to disentangle the latent features better than the other models.
 
 Future work could focus one the evaluation of the disentanglement. One method already proposed uses trained linear classifiers \cite{higgins2017vae}. Another method uses a metric based on \textit{mutual information} \cite{chen2019isolating}. With a better disentanglement metric than visual inspection by a person, it would be easier to compare different models and hyperparameters with each other.
 

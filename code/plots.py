@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import matplotlib.pyplot as plt
 
+import matplotlib.patches
+import scipy.stats
+
 import matplotlib
 import numpy as np
 
@@ -138,7 +141,7 @@ def plot_model_exploration(model: ModelWrapper, img: np.array, min_z: float = -6
         for i, step in enumerate(steps):
             z_temp[j] = step
             reconstruction = model.get_reconstruction(z_temp)
-            canvas[j * img_width : (j + 1) * img_width, i * img_height : (i + 1) * img_height] = reconstruction
+            canvas[j * img_width: (j + 1) * img_width, i * img_height: (i + 1) * img_height] = reconstruction
 
     ax.imshow(canvas)
     start_range_y = img_height // 2
@@ -197,3 +200,122 @@ def plot_reconstruction_matrix(imgs: list, model, ax):
     ax.set_yticklabels([])
     ax.set_xticklabels([])
     ax.tick_params(axis='both', which='both', length=0)
+
+
+def plot_dataset_to_dist(num_datapoints=10000, bins=50):
+    matplotlib.use('pgf')
+    matplotlib.rcParams.update({
+        'pgf.texsystem': 'pdflatex',
+        'font.family': 'serif',
+        'text.usetex': True,
+        'pgf.rcfonts': False,
+        'axes.unicode_minus': False,
+        'figure.figsize': (20, 5)
+    })
+    data = np.random.randn(num_datapoints)
+    fig, axs = plt.subplots(1, 2)
+    plt.subplots_adjust(wspace=0.5)
+
+    _, bins, _ = axs[0].hist(data, bins=bins)
+    axs[0].set_title('dataset')
+    axs[0].set_xlabel('value')
+    axs[0].set_ylabel('frequency')
+
+    mu, sigma = scipy.stats.norm.fit(data)
+    best_fit_line = scipy.stats.norm.pdf(bins, mu, sigma)
+    axs[1].plot(bins, best_fit_line)
+    axs[1].set_title('probability distribution')
+    axs[1].set_xlabel('value')
+    axs[1].set_ylabel('probability')
+
+    ax0tr = axs[0].transData
+    ax1tr = axs[1].transData
+    figtr = fig.transFigure.inverted()
+    ptB = figtr.transform(ax0tr.transform((1.05, 0.5)))
+    ptE = figtr.transform(ax1tr.transform((-0.15, 0.5)))
+    arrow = matplotlib.patches.FancyArrowPatch(
+        ptB, ptE, transform=fig.transFigure,
+        fc="b", arrowstyle='simple', alpha=0.3,
+        mutation_scale=40.
+    )
+    fig.patches.append(arrow)
+    return fig, axs
+
+
+def plot_encoding_comparison():
+    matplotlib.use("pgf")
+    matplotlib.rcParams.update({
+        "pgf.texsystem": "pdflatex",
+        'font.family': 'serif',
+        'text.usetex': True,
+        'pgf.rcfonts': False,
+        'axes.unicode_minus': False,
+        'figure.figsize': (11, 5)
+    })
+
+    fig, axs = plt.subplots(1, 2)
+
+    axs[0].set_xlim(0, 10)
+    axs[0].set_ylim(0, 10)
+    plot_blurred_ellipse(axs[0], 4, 2, color='red')
+    plot_blurred_ellipse(axs[0], 7, 4, color='orange')
+    plot_blurred_ellipse(axs[0], 7, 8, color='blue')
+    plot_blurred_ellipse(axs[0], 4, 6, color='green')
+    axs[0].set_title('deterministic encoding')
+    axs[0].set_xlabel('x')
+    axs[0].set_ylabel('y')
+
+    axs[1].set_xlim(0, 10)
+    axs[1].set_ylim(0, 10)
+    plot_blurred_ellipse(axs[1], 4, 2, w=5, h=5, color='red')
+    plot_blurred_ellipse(axs[1], 7, 4, w=5, h=5, color='orange')
+    plot_blurred_ellipse(axs[1], 7, 8, w=5, h=5, color='blue')
+    plot_blurred_ellipse(axs[1], 4, 6, w=5, h=5, color='green')
+    axs[1].set_title('probabilistic encoding')
+    axs[1].set_xlabel('x')
+    axs[1].set_ylabel('y')
+
+    return fig, axs
+
+
+def plot_blurred_ellipse(ax, x, y, w=1, h=1, color='red', angle=0):
+    for i in range(100):
+        w_i = w * (1 - i * 0.01)
+        h_i = h * (1 - i * 0.01)
+        circle = matplotlib.patches.Ellipse((x, y), w_i, h_i, angle, color=color, alpha=i * 0.001)
+        ax.add_patch(circle)
+
+
+def plot_beta_disentanglement():
+    matplotlib.use('pgf')
+    matplotlib.rcParams.update({
+        'pgf.texsystem': 'pdflatex',
+        'font.family': 'serif',
+        'text.usetex': True,
+        'pgf.rcfonts': False,
+        'axes.unicode_minus': False,
+        'figure.figsize': (7, 5)
+    })
+
+    fig, ax = plt.subplots(1)
+
+    x = np.arange(-10, 10, 0.01)
+    y = scipy.stats.norm.pdf(x, 0, 1)
+    ax.set_xlim(-5, 3)
+    ax.set_ylim(0, 0.5)
+    ax.plot(x - 3, y, label=r'$p(z|x_1)$')
+    ax.plot(x, y, label=r'$p(z | x_2)$')
+    ax.plot(-2, 0.01, 'o', color='red')
+
+    ax.annotate(r'$z \sim p(z | x_2)$', xy=(-2, 0.01), xycoords='data',
+                xytext=(-3, 0.1), textcoords='data',
+                arrowprops=dict(facecolor='black', shrink=0.08, width=0.8, headwidth=6, headlength=4),
+                horizontalalignment='right', verticalalignment='top'
+                )
+
+    ax.set_title('probability distribution')
+    ax.set_xlabel('value')
+    ax.set_ylabel('probability')
+    plt.legend()
+
+    return fig, ax

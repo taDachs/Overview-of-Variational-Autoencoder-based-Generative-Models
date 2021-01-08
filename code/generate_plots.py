@@ -12,13 +12,14 @@ from util import *
 
 if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-    parser = argparse.ArgumentParser(description='script for preprocessing of the celeba dataset')
+    parser = argparse.ArgumentParser(description='script for generating plots of the autoenocder results')
     parser.add_argument('--data', metavar='[DATASET PATH]', type=str, required=True, help='path to dataset')
     parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, required=True, help='path to plot destination')
     parser.add_argument('--config', metavar='[CONFIG PATH]', type=str, help='path to config')
     parser.add_argument('--explore-model', metavar='[MODEL PATH]', type=str, help='path to model')
     parser.add_argument('--num-images', metavar='N', type=int, default=5,
                         help='path to folder containing models')
+    parser.add_argument('--presentation-plots', action='store_true', help='if set, generates the plots used in the presentation')
 
     args = parser.parse_args()
 
@@ -27,6 +28,7 @@ if __name__ == '__main__':
     config_path = args.config
     plot_path = args.dst
     explore_model = args.explore_model
+    presentation_plots = args.presentation_plots
     imgs = []
 
     path_list = os.listdir(data_path)
@@ -62,6 +64,11 @@ if __name__ == '__main__':
                                                 substitution_dict=substitution_dict)
         fig.savefig(os.path.join(plot_path, 'reconstruction_comparison.pgf'), dpi=300, bbox_inches='tight')
         fig.savefig(os.path.join(plot_path, 'reconstruction_comparison.pdf'), dpi=300, bbox_inches='tight')
+
+        if presentation_plots:
+            fig, _ = plot_dataset_to_dist()
+            fig.savefig(os.path.join(plot_path, 'dataset_to_dist.pgf'), dpi=300, bbox_inches='tight')
+            fig.savefig(os.path.join(plot_path, 'dataset_to_dist.pdf'), dpi=300, bbox_inches='tight')
     elif explore_model is not None and config_path is None:
         encoder, decoder = load_encoder_decoder(explore_model)
         model = wrap_model(encoder, decoder)

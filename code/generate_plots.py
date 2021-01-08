@@ -19,7 +19,8 @@ if __name__ == '__main__':
     parser.add_argument('--explore-model', metavar='[MODEL PATH]', type=str, help='path to model')
     parser.add_argument('--num-images', metavar='N', type=int, default=5,
                         help='path to folder containing models')
-    parser.add_argument('--presentation-plots', action='store_true', help='if set, generates the plots used in the presentation')
+    parser.add_argument('--presentation-plots', action='store_true',
+                        help='if set, generates the plots used in the presentation')
 
     args = parser.parse_args()
 

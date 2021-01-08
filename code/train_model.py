@@ -15,7 +15,7 @@ if __name__ == '__main__':
     parser.add_argument('--dst', metavar='[DESTINATION PATH]', type=str, required=True,
                         help='path to model save destination')
     parser.add_argument('--epochs', metavar='N', type=int, default=30, help='Number of epochs trained')
-    parser.add_argument('--learning-rate', metavar='l', type=float, default=0.001, 
+    parser.add_argument('--learning-rate', metavar='l', type=float, default=0.001,
                         help='learning rate for model')
     parser.add_argument('--latent', metavar='L', type=int, default=32, help='dimension of latent space')
     parser.add_argument('--beta', metavar='B', type=float, default=1, help='beta regularizer')

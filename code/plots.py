@@ -30,9 +30,9 @@ def plot_comparison_disentanglement(imgs: list, models: list, model_names: list,
     fig_height = fig_width * GOLDEN_MEAN
     fig_size = [fig_width, fig_height]
 
-    matplotlib.use("pgf")
+    matplotlib.use('pgf')
     matplotlib.rcParams.update({
-        "pgf.texsystem": "pdflatex",
+        'pgf.texsystem': 'pdflatex',
         'font.family': 'serif',
         'text.usetex': True,
         'pgf.rcfonts': False,
@@ -87,9 +87,9 @@ def plot_comparison_generative(models: list, model_names: list, size=(5, 5),
     fig_height = fig_width * GOLDEN_MEAN
     fig_size = [fig_width, fig_height]
 
-    matplotlib.use("pgf")
+    matplotlib.use('pgf')
     matplotlib.rcParams.update({
-        "pgf.texsystem": "pdflatex",
+        'pgf.texsystem': 'pdflatex',
         'font.family': 'serif',
         'text.usetex': True,
         'pgf.rcfonts': False,
@@ -127,10 +127,10 @@ def plot_generative_matrix(model, ax, size=(5, 5)):
     ax.tick_params(axis='both', which='both', length=0)
 
 
-def plot_model_exploration(model: ModelWrapper, img: np.array, min_z: float = -6, max_z: float = 6,
+def plot_model_exploration(model: ModelWrapper, img: np.array, min_z: float = -15, max_z: float = 15,
                            num_steps: int = 10):
     img_height, img_width, channels = model.output_shape
-    steps = np.linspace(-15, 15, num_steps)
+    steps = np.linspace(-min_z, max_z, num_steps)
     canvas = np.zeros((model.latent_dim * img_height, num_steps * img_width, channels))
     fig, ax = plt.subplots()
     z = model.get_latent(img)
@@ -163,9 +163,9 @@ def plot_comparison_reconstruction(imgs: list, models: list, model_names: list, 
     fig_height = fig_width * GOLDEN_MEAN
     fig_size = [fig_width, fig_height]
 
-    matplotlib.use("pgf")
+    matplotlib.use('pgf')
     matplotlib.rcParams.update({
-        "pgf.texsystem": "pdflatex",
+        'pgf.texsystem': 'pdflatex',
         'font.family': 'serif',
         'text.usetex': True,
         'pgf.rcfonts': False,
@@ -231,11 +231,11 @@ def plot_dataset_to_dist(num_datapoints=10000, bins=50):
     ax0tr = axs[0].transData
     ax1tr = axs[1].transData
     figtr = fig.transFigure.inverted()
-    ptB = figtr.transform(ax0tr.transform((1.05, 0.5)))
-    ptE = figtr.transform(ax1tr.transform((-0.15, 0.5)))
+    left_plot = figtr.transform(ax0tr.transform((1.05, 0.5)))
+    right_plot = figtr.transform(ax1tr.transform((-0.15, 0.5)))
     arrow = matplotlib.patches.FancyArrowPatch(
-        ptB, ptE, transform=fig.transFigure,
-        fc="b", arrowstyle='simple', alpha=0.3,
+        left_plot, right_plot, transform=fig.transFigure,
+        fc='b', arrowstyle='simple', alpha=0.3,
         mutation_scale=40.
     )
     fig.patches.append(arrow)
@@ -243,9 +243,9 @@ def plot_dataset_to_dist(num_datapoints=10000, bins=50):
 
 
 def plot_encoding_comparison():
-    matplotlib.use("pgf")
+    matplotlib.use('pgf')
     matplotlib.rcParams.update({
-        "pgf.texsystem": "pdflatex",
+        'pgf.texsystem': 'pdflatex',
         'font.family': 'serif',
         'text.usetex': True,
         'pgf.rcfonts': False,

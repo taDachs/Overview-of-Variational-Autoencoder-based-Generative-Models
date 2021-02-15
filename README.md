@@ -2,7 +2,7 @@
 
 ![plot](images/disentanglement_comparison.jpg)
 
-This is an article about using variational autoencoders for the generation of new data. It contains the code for training the mentioned models on celeb_a and generating the plots. 
+This is an article about using variational autoencoders for the generation of new data. It contains the code for training the mentioned models on celeb_a and generating the plots. It was written for a seminar I attended.
 
 tensorflow, tensorflow-probabilty, matplotlib and PIL are required.
 
